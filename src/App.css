@@ -341,3 +341,64 @@ button:hover {
   .track-input-container input { text-align: left; }
   .track-input-container button { width: auto; margin-top: 0; }
 }
+
+```css
+/* =========================================
+   8. MOBILE MENU FIXES (Append to bottom)
+   ========================================= */
+
+/* Fix 1: Force Hamburger Icon to be Black & Visible */
+.hamburger-btn {
+    background: transparent !important; /* Remove global black background */
+    color: black !important; /* Force icon to be black */
+    padding: 0 !important;
+    width: auto !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+.hamburger-btn svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* Fix 2: The Backdrop (Clicking outside closes menu) */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 80px; /* Starts below header */
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Dim the background */
+    z-index: 40;
+}
+
+/* Fix 3: The Dropdown Menu (Solid, Clean, Full Width) */
+.mobile-menu-dropdown {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    padding: 1rem 0;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    border-top: 1px solid #f3f4f6;
+    animation: slideDown 0.2s ease-out;
+}
+
+/* Animation for smooth opening */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Links inside the menu */
+.mobile-menu-link {
+    display: block;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    border-bottom: 1px solid #f9fafb;
+}
+.mobile-menu-link:last-child { border-bottom: none; }
