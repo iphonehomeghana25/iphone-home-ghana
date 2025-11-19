@@ -347,6 +347,10 @@ button:hover {
    8. MOBILE MENU FIXES (Append to bottom)
    ========================================= */
 
+/* =========================================
+   8. MOBILE MENU FIXES (Append to bottom)
+   ========================================= */
+
 /* Fix 1: Force Hamburger Icon to be Black & Visible */
 .hamburger-btn {
     background: transparent !important; /* Remove global black background */
@@ -355,6 +359,9 @@ button:hover {
     width: auto !important;
     box-shadow: none !important;
     transform: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 .hamburger-btn svg {
     width: 32px;
