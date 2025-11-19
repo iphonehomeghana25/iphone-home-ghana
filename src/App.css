@@ -343,32 +343,39 @@ button:hover {
 }
 
 /* =========================================
-   8. MOBILE MENU FIXES (Updated)
+   8. MOBILE MENU FIXES (FINAL)
    ========================================= */
 
-/* Fix 1: Force Hamburger Icon to be Black & Visible */
-.hamburger-btn {
-    background: transparent !important; /* Remove global black background */
-    color: black !important; /* Force icon to be black */
-    padding: 0 !important;
+/* Fix 1: Force Hamburger Icon Visibility using ID */
+#mobile-menu-btn {
+    background-color: transparent !important;
+    color: black !important; /* Ensure text/icon color is black */
+    border: none !important;
+    padding: 0.5rem !important;
+    margin: 0 !important;
     width: auto !important;
+    height: auto !important;
     box-shadow: none !important;
     transform: none !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    min-width: auto !important; /* Prevents it from being wide like other buttons */
+    min-width: auto !important;
 }
-.hamburger-btn:hover {
-    background: transparent !important;
-    color: var(--brand-yellow) !important;
+
+/* Ensure the SVG inside inherits the black color */
+#mobile-menu-btn svg {
+    stroke: black !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: block !important;
+}
+
+/* Remove hover effects that might hide it */
+#mobile-menu-btn:hover {
+    background-color: transparent !important;
     transform: none !important;
     box-shadow: none !important;
-}
-.hamburger-btn svg {
-    width: 32px;
-    height: 32px;
-    stroke: currentColor; /* Inherits color from parent */
 }
 
 /* Fix 2: The Backdrop (Clicking outside closes menu) */
@@ -379,20 +386,21 @@ button:hover {
     width: 100%;
     height: calc(100vh - 80px); /* Covers rest of screen */
     background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
-    z-index: 90; /* Below menu (z-100 or similar) but above content */
+    z-index: 90; /* Below menu but above content */
     cursor: pointer; /* Tells mobile browsers this is clickable */
+    -webkit-tap-highlight-color: transparent; /* Removes blue highlight on tap */
 }
 
-/* Fix 3: The Dropdown Menu (Solid, Clean, Full Width) */
+/* Fix 3: The Dropdown Menu */
 .mobile-menu-dropdown {
-    position: absolute;
+    position: fixed; /* Fixed ensures it stays put even if you scroll */
     top: 80px;
     left: 0;
     width: 100%;
     background-color: white;
     padding: 1rem 0;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    z-index: 100; /* Above everything */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100; /* Highest priority */
     border-top: 1px solid #f3f4f6;
     animation: slideDown 0.2s ease-out;
 }
