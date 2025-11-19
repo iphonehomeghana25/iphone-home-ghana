@@ -7,32 +7,76 @@ import Header from './components/Header';
 import ShopHero from './components/ShopHero';
 import FeaturedProducts from './components/FeaturedProducts';
 import Footer from './components/Footer';
-import { FeaturesSection, HowItWorksSection, TestimonialsSection, TrackOrderInput, ShopAllCTA } from './components/HomeSections';
+import { 
+  FeaturesSection, 
+  HowItWorksSection, 
+  TestimonialsSection, 
+  TrackOrderInput, 
+  ShopAllCTA,
+  BNPLBanner // <--- Imported the new Banner
+} from './components/HomeSections';
 
 // Pages
 import StaffLogin from './pages/StaffLogin';
 import AdminLayout from './admin/AdminLayout';
-// IMPORT THE NEW ADMIN PAGES (We will create these in the next step)
 import Dashboard from './admin/Dashboard';
 import ManageProducts from './admin/ManageProducts';
+import BNPLPage from './pages/BNPLPage'; // <--- Imported the new Page
 
 function App() {
   return (
     <div className="app-wrapper">
       {/* SEO */}
       <title>iPhone Home Ghana | Buy Brand New & UK Used iPhones in Accra</title>
-      <meta name="description" content="Trusted iPhone dealer in Accra. Locations: Haatso & Circle." />
+      <meta name="description" content="Trusted iPhone dealer in Accra. Locations: Haatso & Circle. Buy authentic Apple products with warranty." />
 
+      {/* 2. The Header (Stays at the top on every page) */}
+      <Header />
+
+      {/* 3. The Main Content (Changes based on the link you click) */}
       <Routes>
-        {/* --- PUBLIC ROUTES (Has Header & Footer) --- */}
-        <Route path="/" element={<><Header /><PublicHome /><Footer /></>} />
-        <Route path="/shop" element={<><Header /><div className="container py-16" style={{textAlign:'center'}}><h1>Shop Page Coming Soon</h1></div><Footer /></>} />
-        <Route path="/cart" element={<><Header /><div className="container py-16" style={{textAlign:'center'}}><h1>Cart Page Coming Soon</h1></div><Footer /></>} />
-        <Route path="/track" element={<><Header /><div className="container py-16" style={{textAlign:'center'}}><h1>Track Order</h1></div><Footer /></>} />
-        <Route path="/bnpl" element={<><Header /><div className="container py-16" style={{textAlign:'center'}}><h1>Buy Now Pay Later</h1></div><Footer /></>} />
+        
+        {/* --- HOME PAGE --- */}
+        <Route path="/" element={
+          <main>
+            {/* Hero Grid (Haatso & Circle Shops) */}
+            <ShopHero />
+            
+            {/* Features (Authentic, Fast, Support) */}
+            <FeaturesSection />
+
+            {/* Featured Products (Just Arrived) */}
+            <FeaturedProducts />
+            
+            {/* How It Works (1, 2, 3 Steps) */}
+            <HowItWorksSection />
+
+            {/* Testimonials (Customer Reviews) */}
+            <TestimonialsSection />
+
+            {/* Track Order Input (Search Bar) */}
+            <TrackOrderInput />
+
+            {/* NEW: Buy Now Pay Later Banner (The Marketing Hook) */}
+            <BNPLBanner />
+
+            {/* Final Call to Action Button */}
+            <ShopAllCTA />
+          </main>
+        } />
+
+        {/* --- PUBLIC PAGES --- */}
+        <Route path="/shop" element={<div className="container py-16" style={{textAlign:'center'}}><h1>Shop Page Coming Soon</h1><p>We are stocking up the shelves...</p></div>} />
+        
+        <Route path="/cart" element={<div className="container py-16" style={{textAlign:'center'}}><h1>Your Cart</h1><p>Cart functionality coming shortly.</p></div>} />
+        
+        <Route path="/track" element={<div className="container py-16" style={{textAlign:'center'}}><h1>Track Order</h1><p>Order tracking system is being set up.</p></div>} />
+        
+        {/* Buy Now Pay Later Page (Connected!) */}
+        <Route path="/bnpl" element={<BNPLPage />} />
         
         {/* Login Page */}
-        <Route path="/staff-login" element={<><Header /><StaffLogin /><Footer /></>} />
+        <Route path="/staff-login" element={<StaffLogin />} />
 
         {/* --- ADMIN ROUTES (Protected, No Header/Footer) --- */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -44,11 +88,15 @@ function App() {
         </Route>
 
       </Routes>
+
+      {/* 4. The Footer (Stays at the bottom of every page) */}
+      <Footer />
+      
     </div>
   );
 }
 
-// Small helper to clean up App.js structure
+// Small helper to clean up App.js structure not strictly needed but good for readability if used
 function PublicHome() {
     return (
         <main>
@@ -58,6 +106,7 @@ function PublicHome() {
             <HowItWorksSection />
             <TestimonialsSection />
             <TrackOrderInput />
+            <BNPLBanner />
             <ShopAllCTA />
         </main>
     );

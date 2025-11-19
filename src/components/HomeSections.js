@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// --- 1. Features Section ---
+// --- 1. Features Section (Moved down from header) ---
 export function FeaturesSection() {
   return (
-    <section className="py-16 container">
+    <section className="py-section mt-header-gap container"> {/* Added margin-top here */}
       <div className="features-grid">
         <div className="feature-card">
           <div className="icon-box">🛡️</div>
@@ -29,7 +29,7 @@ export function FeaturesSection() {
 // --- 2. How It Works ---
 export function HowItWorksSection() {
   return (
-    <section className="py-16" style={{ backgroundColor: '#f9fafb' }}>
+    <section className="py-section" style={{ backgroundColor: '#ffffff' }}>
       <div className="container" style={{ textAlign: 'center' }}>
         <h2 className="section-title">Shopping Made Simple</h2>
         <p className="section-subtitle">Get your perfect phone in three easy steps.</p>
@@ -56,33 +56,35 @@ export function HowItWorksSection() {
   );
 }
 
-// --- 3. Testimonials ---
+// --- 3. Testimonials (Extended Grey Background) ---
 export function TestimonialsSection() {
   return (
-    <section className="py-16 container">
-      <h2 className="section-title" style={{ textAlign: 'center' }}>What Our Customers Say</h2>
-      <div className="features-grid mt-4">
-        <div className="review-card">
-          <div className="stars">⭐⭐⭐⭐⭐</div>
-          <p>"Best prices in Accra, period. Got a clean UK used 13 Pro and it works like new. Delivery was same-day!"</p>
-          <h4>- Daniel A.</h4>
-        </div>
-        <div className="review-card">
-          <div className="stars">⭐⭐⭐⭐⭐</div>
-          <p>"iPhone Home Ghana is my go-to. Trustworthy and very professional service. Highly recommended."</p>
-          <h4>- Grace O.</h4>
-        </div>
-        <div className="review-card">
-          <div className="stars">⭐⭐⭐⭐⭐</div>
-          <p>"Legit dealer. Bought a brand new 15 Pro and it was sealed perfect. The rider was very polite."</p>
-          <h4>- Sammy T.</h4>
+    <section className="py-section" style={{ backgroundColor: '#f9fafb' }}> {/* Grey Background */}
+      <div className="container">
+        <h2 className="section-title" style={{ textAlign: 'center' }}>What Our Customers Say</h2>
+        <div className="features-grid mt-4">
+          <div className="review-card">
+            <div className="stars">⭐⭐⭐⭐⭐</div>
+            <p>"Best prices in Accra, period. Got a clean UK used 13 Pro and it works like new. Delivery was same-day!"</p>
+            <h4>- Daniel A.</h4>
+          </div>
+          <div className="review-card">
+            <div className="stars">⭐⭐⭐⭐⭐</div>
+            <p>"iPhone Home Ghana is my go-to. Trustworthy and very professional service. Highly recommended."</p>
+            <h4>- Grace O.</h4>
+          </div>
+          <div className="review-card">
+            <div className="stars">⭐⭐⭐⭐⭐</div>
+            <p>"Legit dealer. Bought a brand new 15 Pro and it was sealed perfect. The rider was very polite."</p>
+            <h4>- Sammy T.</h4>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// --- 4. Track Order Input (Updated) ---
+// --- 4. Track Order Input ---
 export function TrackOrderInput() {
   const navigate = useNavigate();
 
@@ -92,19 +94,14 @@ export function TrackOrderInput() {
   };
 
   return (
-    <section className="py-16" style={{ backgroundColor: '#f9fafb', textAlign: 'center' }}>
-      <div className="container">
+    <section className="py-section" style={{ backgroundColor: 'white', textAlign: 'center' }}>
+      <div className="container" style={{ maxWidth: '600px' }}>
         <h2 className="section-title">Track Your Delivery</h2>
-        <p className="section-subtitle">Already placed an order? Enter your Order ID below.</p>
+        <p className="section-subtitle">Already placed an order? Check its status here.</p>
         
         <form onSubmit={handleTrack} style={{ marginTop: '2rem' }}>
-            {/* New Class for the Pill Shape */}
             <div className="track-input-container">
-                <input 
-                    type="text" 
-                    placeholder="e.g. IHG-88123" 
-                    required
-                />
+                <input type="text" placeholder="e.g. IHG-88123" required />
                 <button type="submit">Track Order</button>
             </div>
         </form>
@@ -113,7 +110,45 @@ export function TrackOrderInput() {
   );
 }
 
-// --- 5. Shop All CTA (Ensure this is exported!) ---
+// --- 5. Buy Now Pay Later Banner ---
+export function BNPLBanner() {
+  const navigate = useNavigate();
+  
+  return (
+    <section className="py-16" style={{ backgroundColor: 'black', color: 'white', textAlign: 'center' }}>
+      <div className="container">
+        <div style={{ 
+            border: '1px solid #333', 
+            borderRadius: '16px', 
+            padding: '3rem 2rem',
+            background: 'linear-gradient(145deg, #111 0%, #000 100%)'
+        }}>
+            <h2 style={{ color: '#FFD700', fontSize: '2rem', fontWeight: '800', marginBottom: '1rem' }}>
+                Buy Now, Pay Later
+            </h2>
+            <p style={{ color: '#9ca3af', fontSize: '1.1rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem auto' }}>
+                Get your dream iPhone today and pay in flexible installments using your Ghana Card. No stress, just premium tech.
+            </p>
+            <button 
+                onClick={() => navigate('/bnpl')}
+                style={{ 
+                    backgroundColor: '#FFD700', 
+                    color: 'black', 
+                    padding: '1rem 2.5rem', 
+                    borderRadius: '100px',
+                    fontSize: '1rem',
+                    fontWeight: '700'
+                }}
+            >
+                Check Eligibility &rarr;
+            </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- 6. Shop All CTA ---
 export function ShopAllCTA() {
     const navigate = useNavigate();
     return (
@@ -122,9 +157,10 @@ export function ShopAllCTA() {
                 onClick={() => navigate('/shop')} 
                 style={{ 
                     fontSize: '1.2rem', 
-                    padding: '1rem 3rem', 
+                    padding: '1.2rem 4rem', 
                     backgroundColor: 'black', 
-                    color: 'white' 
+                    color: 'white',
+                    borderRadius: '100px'
                 }}
             >
                 Shop All Products
