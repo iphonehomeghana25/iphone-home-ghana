@@ -342,13 +342,8 @@ button:hover {
   .track-input-container button { width: auto; margin-top: 0; }
 }
 
-```css
 /* =========================================
-   8. MOBILE MENU FIXES (Append to bottom)
-   ========================================= */
-
-/* =========================================
-   8. MOBILE MENU FIXES (Append to bottom)
+   8. MOBILE MENU FIXES (Updated)
    ========================================= */
 
 /* Fix 1: Force Hamburger Icon to be Black & Visible */
@@ -362,21 +357,30 @@ button:hover {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    min-width: auto !important; /* Prevents it from being wide like other buttons */
+}
+.hamburger-btn:hover {
+    background: transparent !important;
+    color: var(--brand-yellow) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 .hamburger-btn svg {
     width: 32px;
     height: 32px;
+    stroke: currentColor; /* Inherits color from parent */
 }
 
 /* Fix 2: The Backdrop (Clicking outside closes menu) */
 .mobile-menu-backdrop {
     position: fixed;
-    top: 80px; /* Starts below header */
+    top: 80px; /* Starts right below header */
     left: 0;
     width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5); /* Dim the background */
-    z-index: 40;
+    height: calc(100vh - 80px); /* Covers rest of screen */
+    background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    z-index: 90; /* Below menu (z-100 or similar) but above content */
+    cursor: pointer; /* Tells mobile browsers this is clickable */
 }
 
 /* Fix 3: The Dropdown Menu (Solid, Clean, Full Width) */
@@ -388,18 +392,16 @@ button:hover {
     background-color: white;
     padding: 1rem 0;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    z-index: 50;
+    z-index: 100; /* Above everything */
     border-top: 1px solid #f3f4f6;
     animation: slideDown 0.2s ease-out;
 }
 
-/* Animation for smooth opening */
 @keyframes slideDown {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Links inside the menu */
 .mobile-menu-link {
     display: block;
     padding: 1rem 2rem;
