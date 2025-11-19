@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap (We will generate this later, but good to link now)
+Sitemap: https://iphonehomeghana.com/sitemap.xml
