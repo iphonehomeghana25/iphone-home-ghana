@@ -18,11 +18,11 @@ export default function Footer() {
               Your verified source for Apple devices in Accra. Brand new and neat UK used phones delivered to your door.
             </p>
             
-            {/* Social Media Icons */}
+            {/* Social Media Icons - REPLACE '#' WITH REAL LINKS */}
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <SocialLink href="#" icon={<InstagramIcon />} />
-              <SocialLink href="#" icon={<FacebookIcon />} />
-              <SocialLink href="#" icon={<TikTokIcon />} />
+              <SocialLink href="https://instagram.com/YOUR_HANDLE" icon={<InstagramIcon />} />
+              <SocialLink href="https://facebook.com/YOUR_HANDLE" icon={<FacebookIcon />} />
+              <SocialLink href="https://tiktok.com/@YOUR_HANDLE" icon={<TikTokIcon />} />
             </div>
           </div>
 
@@ -36,7 +36,7 @@ export default function Footer() {
               <li><Link to="/bnpl" className="footer-link">Buy Now Pay Later</Link></li>
             
               
-              {/* Staff Portal Link (Subtle) */}
+              {/* Staff Portal Link */}
               <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #333' }}>
                 <Link to="/staff-login" className="footer-link" style={{ fontSize: '0.85rem', color: '#6b7280' }}>
                   🔒 Staff Portal
@@ -89,7 +89,7 @@ export default function Footer() {
 // --- Helper Component for Social Links ---
 function SocialLink({ href, icon }) {
   return (
-    <a href={href} className="social-icon-btn">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="social-icon-btn">
       {icon}
     </a>
   );

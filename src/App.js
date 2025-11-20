@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import './App.css';
+import ScrollToTop from './components/ScrollToTop'; // <--- IMPORT THIS
 
 // Components
 import Header from './components/Header';
@@ -23,7 +24,7 @@ import TrackOrderPage from './pages/TrackOrderPage';
 import ShopPage from './pages/ShopPage';        
 import CartPage from './pages/CartPage';        
 import CheckoutPage from './pages/CheckoutPage'; 
-import OrderConfirmation from './pages/OrderConfirmation'; // <--- IMPORTED NEW PAGE
+import OrderConfirmation from './pages/OrderConfirmation';
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
@@ -34,6 +35,7 @@ import ManageBNPL from './admin/ManageBNPL';
 
 const PublicLayout = () => (
   <>
+    <ScrollToTop /> {/* <--- ACTIVATE SCROLL FIX HERE */}
     <Header />
     <Outlet />
     <Footer />
@@ -63,7 +65,7 @@ function App() {
             <Route path="/shop" element={<ShopPage />} /> 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} /> {/* <--- ADDED ROUTE */}
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
             
             <Route path="/track" element={<TrackOrderPage />} />
             <Route path="/bnpl" element={<BNPLPage />} />

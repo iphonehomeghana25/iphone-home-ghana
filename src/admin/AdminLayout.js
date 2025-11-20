@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import AdminHeader from './AdminHeader'; // <--- IMPORTED HEADER
+import AdminHeader from './AdminHeader';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024); // Check initially
+
+  // --- SCREEN SIZE LISTENER ---
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     checkUser();
@@ -32,7 +40,30 @@ export default function AdminLayout() {
     navigate('/staff-login');
   };
 
-  // --- Page Title Logic ---
+  // --- MOBILE BLOCKER ---
+  if (isMobile) {
+    return (
+        <div style={{ 
+            height: '100vh', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            padding: '2rem', 
+            textAlign: 'center',
+            backgroundColor: '#f9fafb'
+        }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💻</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>Desktop Access Only</h2>
+            <p style={{ color: '#666', maxWidth: '300px' }}>
+                The iPhone Home Admin Panel is optimized for desktop and laptop computers to ensure data accuracy.
+            </p>
+            <Link to="/" style={{ marginTop: '2rem', textDecoration: 'underline', fontWeight: '600' }}>Back to Shop</Link>
+        </div>
+    );
+  }
+
+  // --- NORMAL ADMIN LOGIC ---
   let pageTitle = 'Dashboard';
   if (location.pathname.includes('products')) pageTitle = 'Product Management';
   if (location.pathname.includes('orders')) pageTitle = 'Order Management';
@@ -40,50 +71,30 @@ export default function AdminLayout() {
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
-  // Define the width based on state
   const sidebarWidth = collapsed ? '80px' : '260px';
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       
-      {/* --- SIDEBAR (Fixed Position) --- */}
+      {/* --- SIDEBAR --- */}
       <aside style={{ 
-          width: sidebarWidth, 
-          backgroundColor: 'white', 
-          borderRight: '1px solid #eaecf0', 
-          padding: '1.5rem', 
-          position: 'fixed', /* Sticks to the left */
-          top: 0,
-          bottom: 0,
-          left: 0,
-          zIndex: 50,
-          transition: 'width 0.3s ease', /* Smooth width change */
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          boxSizing: 'border-box'
+          width: sidebarWidth, backgroundColor: 'white', borderRight: '1px solid #eaecf0', 
+          padding: '1.5rem', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 50,
+          transition: 'width 0.3s ease', overflowX: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box'
       }}>
         
         {/* Header & Toggle */}
-        <div style={{ 
-            marginBottom: '3rem', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: collapsed ? 'center' : 'space-between',
-            height: '40px'
-        }}>
+        <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', height: '40px' }}>
              {!collapsed && (
                  <span style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     Admin Panel
                  </span>
              )}
-             
              <button 
                 onClick={() => setCollapsed(!collapsed)}
                 style={{ 
                     background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#667085',
-                    minWidth: 'auto'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#667085', minWidth: 'auto'
                 }}
                 title={collapsed ? "Expand" : "Collapse"}
              >
@@ -91,7 +102,7 @@ export default function AdminLayout() {
              </button>
         </div>
 
-        {/* Navigation Links */}
+        {/* Links */}
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexGrow: 1 }}>
             <AdminLink to="/admin/dashboard" active={location.pathname === '/admin/dashboard'} label="Overview" icon="📊" collapsed={collapsed} />
             <AdminLink to="/admin/products" active={location.pathname === '/admin/products'} label="Products" icon="📱" collapsed={collapsed} />
@@ -99,24 +110,14 @@ export default function AdminLayout() {
             <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
         </nav>
 
-        {/* Logout Button */}
+        {/* Logout */}
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #eaecf0' }}>
             <button 
                 onClick={handleLogout} 
                 style={{ 
-                    width: '100%', 
-                    backgroundColor: '#fef2f2', 
-                    color: '#dc2626', 
-                    border: '1px solid #fee2e2',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: collapsed ? 'center' : 'center',
-                    gap: '0.5rem',
-                    fontWeight: '600',
-                    minWidth: 'auto'
+                    width: '100%', backgroundColor: '#fef2f2', color: '#dc2626', border: '1px solid #fee2e2',
+                    padding: '0.75rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                    justifyContent: collapsed ? 'center' : 'center', gap: '0.5rem', fontWeight: '600', minWidth: 'auto'
                 }}
             >
                 <span>🚪</span>
@@ -125,19 +126,12 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT AREA (Dynamic Margin) --- */}
+      {/* --- MAIN CONTENT --- */}
       <main style={{ 
-          flexGrow: 1, 
-          marginLeft: sidebarWidth, /* This pushes content away from the sidebar */
-          // Removed padding here so the Header goes full width
-          transition: 'margin-left 0.3s ease', /* Smooths the push */
-          width: `calc(100% - ${sidebarWidth})`, /* Ensures it fills remaining space */
-          boxSizing: 'border-box'
+          flexGrow: 1, marginLeft: sidebarWidth, transition: 'margin-left 0.3s ease', 
+          width: `calc(100% - ${sidebarWidth})`, boxSizing: 'border-box'
       }}>
-        {/* 1. The Top Navigation Bar */}
         <AdminHeader title={pageTitle} />
-
-        {/* 2. The Page Content (With Padding) */}
         <div style={{ padding: '2.5rem' }}>
             <Outlet />
         </div>
@@ -146,24 +140,13 @@ export default function AdminLayout() {
   );
 }
 
-// --- Helper Components ---
-
 function AdminLink({ to, label, icon, active, collapsed }) {
     return (
         <Link to={to} style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            gap: '0.75rem',
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            textDecoration: 'none',
-            color: active ? 'black' : '#667085',
-            backgroundColor: active ? 'var(--brand-yellow)' : 'transparent',
-            fontWeight: active ? '700' : '500',
-            transition: 'all 0.2s',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
+            display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px', textDecoration: 'none',
+            color: active ? 'black' : '#667085', backgroundColor: active ? 'var(--brand-yellow)' : 'transparent',
+            fontWeight: active ? '700' : '500', transition: 'all 0.2s', whiteSpace: 'nowrap', overflow: 'hidden'
         }} title={label}>
             <span style={{ fontSize: '1.2rem', minWidth: '24px', textAlign: 'center' }}>{icon}</span>
             {!collapsed && <span>{label}</span>}
@@ -171,10 +154,5 @@ function AdminLink({ to, label, icon, active, collapsed }) {
     );
 }
 
-// Simple Icons
-const ChevronLeft = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-);
-const ChevronRight = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-);
+const ChevronLeft = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>);
+const ChevronRight = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>);
