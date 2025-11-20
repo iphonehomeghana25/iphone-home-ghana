@@ -439,3 +439,193 @@ button:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 30px rgba(0,0,0,0.08);
 }
+
+9. CART PAGE STYLES (Mobile Optimized)
+   ========================================= */
+
+/* The Main Grid Layout */
+.cart-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr; /* Desktop: Items take more space */
+    gap: 2rem;
+    align-items: start;
+}
+
+.cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Individual Item Card */
+.cart-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    align-items: center;
+    background: white;
+    position: relative;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.cart-item-details {
+    flex-grow: 1;
+}
+.cart-item-details h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.cart-specs {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.cart-price {
+    margin-top: 0.5rem;
+    font-weight: 700;
+    color: black;
+}
+
+.cart-item-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.8rem;
+}
+
+/* Quantity Buttons */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+.quantity-selector button {
+    padding: 5px 12px;
+    background: transparent;
+    color: black;
+    min-width: 30px;
+    box-shadow: none;
+    border-radius: 0;
+}
+.quantity-selector button:hover {
+    background: #f3f4f6;
+    transform: none;
+}
+.quantity-selector span {
+    padding: 0 10px;
+    font-weight: 600;
+}
+
+.remove-btn {
+    background: transparent;
+    color: #b91c1c;
+    padding: 0;
+    font-size: 0.85rem;
+    text-decoration: underline;
+    box-shadow: none;
+}
+.remove-btn:hover {
+    background: transparent;
+    color: #991b1b;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Order Summary Box */
+.cart-summary {
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background-color: #f9fafb;
+    position: sticky;
+    top: 100px; /* Sticks on desktop */
+}
+.cart-summary h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.summary-row.total {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: black;
+    margin-bottom: 2rem;
+}
+.divider {
+    border-top: 1px solid #ddd;
+    margin: 1rem 0;
+}
+.checkout-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+/* --- MOBILE BREAKPOINT (Max Width 768px) --- */
+@media (max-width: 768px) {
+    .cart-grid {
+        grid-template-columns: 1fr; /* Stack vertically */
+        gap: 2rem;
+    }
+
+    .cart-item {
+        flex-direction: row; /* Keep image left */
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .cart-item-image {
+        width: 70px;
+        height: 70px;
+    }
+
+    /* Stack title and controls better */
+    .cart-item-details h3 {
+        font-size: 1rem;
+    }
+    
+    /* Adjust controls for touch */
+    .cart-item-controls {
+        gap: 1rem;
+    }
+    
+    .cart-summary {
+        position: static; /* Unstick on mobile */
+    }
+}
+
+/* --- EXTRA SMALL PHONES (Max Width 380px - e.g. iPhone SE/8) --- */
+@media (max-width: 380px) {
+    .cart-item {
+        flex-wrap: wrap; /* Allow wrapping if very tight */
+    }
+    .cart-item-controls {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #f3f4f6;
+    }
+}

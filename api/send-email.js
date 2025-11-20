@@ -46,10 +46,12 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    // 3. Send via Resend
+    // 3. Send via Resend (Using Verified Domain)
     const data = await resend.emails.send({
-      from: 'iPhone Home Ghana <onboarding@resend.dev>', // Update this once you verify your domain
-      to: [customer_email],
+      // CHANGE THIS: Replace with your verified domain email
+      // Example: 'iPhone Home Ghana <orders@iphonehomeghana.com>'
+      from: 'iPhone Home Ghana <receipts@iphonehomeghana.com>', 
+      to: [customer_email], // Now this will work for ANY email (Gmail, Yahoo, etc.)
       subject: `Order Confirmed: ${order.id}`,
       html: emailHtml,
     });

@@ -8,7 +8,7 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="container py-section" style={{ textAlign: 'center', minHeight: '60vh' }}>
+      <div className="container py-section" style={{ textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <h1 className="section-title">Your Cart is Empty</h1>
         <p className="section-subtitle">Looks like you haven't added any phones yet.</p>
         <button onClick={() => navigate('/shop')}>Start Shopping</button>
@@ -18,37 +18,36 @@ export default function CartPage() {
 
   return (
     <div className="container py-section">
-      <h1 className="section-title" style={{ marginBottom: '2rem' }}>Your Cart ({cart.length})</h1>
+      <h1 className="section-title" style={{ marginBottom: '2rem', textAlign: 'left' }}>Your Cart ({cart.length})</h1>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'start' }}>
+      <div className="cart-grid">
         
         {/* Left: Cart Items */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="cart-items-list">
           {cart.map((item) => (
-            <div key={item.id} style={{ 
-                display: 'flex', gap: '1rem', padding: '1rem', border: '1px solid #eaecf0', 
-                borderRadius: '12px', alignItems: 'center', background: 'white' 
-            }}>
+            <div key={item.id} className="cart-item">
               {/* Image */}
-              <img src={item.image_url} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'contain' }} />
+              <div className="cart-item-image">
+                <img src={item.image_url} alt={item.name} />
+              </div>
               
               {/* Details */}
-              <div style={{ flexGrow: 1 }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: '700' }}>{item.name}</h3>
-                <p style={{ margin: 0, color: '#667085', fontSize: '0.9rem' }}>
+              <div className="cart-item-details">
+                <h3>{item.name}</h3>
+                <p className="cart-specs">
                    {item.storage} • {item.condition === 'New' ? 'Brand New' : 'UK Used'}
                 </p>
-                <p style={{ marginTop: '0.5rem', fontWeight: '700' }}>GH₵{item.price.toLocaleString()}</p>
+                <p className="cart-price">GH₵{item.price.toLocaleString()}</p>
               </div>
 
               {/* Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: '8px' }}>
-                    <button onClick={() => updateQuantity(item.id, -1)} style={{ padding: '5px 10px', background: 'transparent', color: 'black' }}>-</button>
-                    <span style={{ padding: '0 10px', fontWeight: '600' }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} style={{ padding: '5px 10px', background: 'transparent', color: 'black' }}>+</button>
+              <div className="cart-item-controls">
+                <div className="quantity-selector">
+                    <button onClick={() => updateQuantity(item.id, -1)}>-</button>
+                    <span>{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)}>+</button>
                 </div>
-                <button onClick={() => removeFromCart(item.id)} style={{ background: '#fee2e2', color: '#b91c1c', padding: '8px', fontSize: '0.8rem' }}>
+                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
                     Remove
                 </button>
               </div>
@@ -57,22 +56,22 @@ export default function CartPage() {
         </div>
 
         {/* Right: Summary */}
-        <div style={{ padding: '2rem', border: '1px solid #eaecf0', borderRadius: '16px', backgroundColor: '#f9fafb', position: 'sticky', top: '100px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '1.5rem' }}>Order Summary</h3>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <div className="cart-summary">
+            <h3>Order Summary</h3>
+            <div className="summary-row">
                 <span>Subtotal:</span>
                 <span style={{ fontWeight: '700' }}>GH₵{cartTotal.toLocaleString()}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+            <div className="summary-row">
                 <span>Delivery:</span>
                 <span style={{ color: '#667085' }}>Calculated at Checkout</span>
             </div>
-            <div style={{ borderTop: '1px solid #ddd', margin: '1rem 0' }}></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', fontSize: '1.2rem' }}>
-                <span style={{ fontWeight: '800' }}>Total:</span>
-                <span style={{ fontWeight: '800', color: 'black' }}>GH₵{cartTotal.toLocaleString()}</span>
+            <div className="divider"></div>
+            <div className="summary-row total">
+                <span>Total:</span>
+                <span>GH₵{cartTotal.toLocaleString()}</span>
             </div>
-            <button onClick={() => navigate('/checkout')} style={{ width: '100%' }}>
+            <button className="checkout-btn" onClick={() => navigate('/checkout')}>
                 Proceed to Checkout
             </button>
         </div>
