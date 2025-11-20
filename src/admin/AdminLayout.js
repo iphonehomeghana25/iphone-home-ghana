@@ -15,8 +15,11 @@ export default function AdminLayout() {
   async function checkUser() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) navigate('/staff-login');
+      if (!session) {
+        navigate('/staff-login');
+      }
     } catch (error) {
+      console.error("Auth check failed", error);
       navigate('/staff-login');
     } finally {
       setLoading(false);
@@ -30,24 +33,28 @@ export default function AdminLayout() {
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
+  // Define the width based on state
   const sidebarWidth = collapsed ? '80px' : '260px';
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       
-      {/* --- SIDEBAR --- */}
+      {/* --- SIDEBAR (Fixed Position) --- */}
       <aside style={{ 
           width: sidebarWidth, 
           backgroundColor: 'white', 
           borderRight: '1px solid #eaecf0', 
           padding: '1.5rem', 
-          position: 'fixed', 
-          height: '100%', 
+          position: 'fixed', /* Sticks to the left */
+          top: 0,
+          bottom: 0,
+          left: 0,
           zIndex: 50,
-          transition: 'width 0.3s ease',
+          transition: 'width 0.3s ease', /* Smooth width change */
           overflowX: 'hidden',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          boxSizing: 'border-box'
       }}>
         
         {/* Header & Toggle */}
@@ -59,7 +66,7 @@ export default function AdminLayout() {
             height: '40px'
         }}>
              {!collapsed && (
-                 <span style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+                 <span style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                     Admin Panel
                  </span>
              )}
@@ -68,7 +75,8 @@ export default function AdminLayout() {
                 onClick={() => setCollapsed(!collapsed)}
                 style={{ 
                     background: 'transparent', border: 'none', cursor: 'pointer', padding: '5px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#667085'
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#667085',
+                    minWidth: 'auto'
                 }}
                 title={collapsed ? "Expand" : "Collapse"}
              >
@@ -76,39 +84,15 @@ export default function AdminLayout() {
              </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation Links */}
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexGrow: 1 }}>
-            <AdminLink 
-                to="/admin/dashboard" 
-                active={location.pathname === '/admin/dashboard'} 
-                label="Overview" 
-                icon="📊" 
-                collapsed={collapsed} 
-            />
-            <AdminLink 
-                to="/admin/products" 
-                active={location.pathname === '/admin/products'} 
-                label="Products" 
-                icon="📱" 
-                collapsed={collapsed} 
-            />
-            <AdminLink 
-                to="/admin/orders" 
-                active={location.pathname === '/admin/orders'} 
-                label="Orders" 
-                icon="📦" 
-                collapsed={collapsed} 
-            />
-            <AdminLink 
-                to="/admin/bnpl" 
-                active={location.pathname === '/admin/bnpl'} 
-                label="BNPL Debtors" 
-                icon="📒" 
-                collapsed={collapsed} 
-            />
+            <AdminLink to="/admin/dashboard" active={location.pathname === '/admin/dashboard'} label="Overview" icon="📊" collapsed={collapsed} />
+            <AdminLink to="/admin/products" active={location.pathname === '/admin/products'} label="Products" icon="📱" collapsed={collapsed} />
+            <AdminLink to="/admin/orders" active={location.pathname === '/admin/orders'} label="Orders" icon="📦" collapsed={collapsed} />
+            <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
         </nav>
 
-        {/* Footer / Logout */}
+        {/* Logout Button */}
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #eaecf0' }}>
             <button 
                 onClick={handleLogout} 
@@ -124,7 +108,8 @@ export default function AdminLayout() {
                     alignItems: 'center',
                     justifyContent: collapsed ? 'center' : 'center',
                     gap: '0.5rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    minWidth: 'auto'
                 }}
             >
                 <span>🚪</span>
@@ -133,12 +118,14 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT --- */}
+      {/* --- MAIN CONTENT AREA (Dynamic Margin) --- */}
       <main style={{ 
           flexGrow: 1, 
-          marginLeft: sidebarWidth, 
+          marginLeft: sidebarWidth, /* This pushes content away from the sidebar */
           padding: '2.5rem', 
-          transition: 'margin-left 0.3s ease' 
+          transition: 'margin-left 0.3s ease', /* Smooths the push */
+          width: `calc(100% - ${sidebarWidth})`, /* Ensures it fills remaining space */
+          boxSizing: 'border-box'
       }}>
         <Outlet />
       </main>
@@ -162,15 +149,16 @@ function AdminLink({ to, label, icon, active, collapsed }) {
             backgroundColor: active ? 'var(--brand-yellow)' : 'transparent',
             fontWeight: active ? '700' : '500',
             transition: 'all 0.2s',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            overflow: 'hidden'
         }} title={label}>
-            <span style={{ fontSize: '1.2rem' }}>{icon}</span>
+            <span style={{ fontSize: '1.2rem', minWidth: '24px', textAlign: 'center' }}>{icon}</span>
             {!collapsed && <span>{label}</span>}
         </Link>
     );
 }
 
-// Simple SVG Icons for the Toggle
+// Simple Icons
 const ChevronLeft = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
 );
