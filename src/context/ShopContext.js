@@ -1,30 +1,26 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-// 1. Create the Context
 const ShopContext = createContext();
 
 export const useShop = () => useContext(ShopContext);
 
-// 2. Create the Provider
 export const ShopProvider = ({ children }) => {
-  // INITIALIZE CART from LocalStorage if available
+  // 1. Initialize Cart from LocalStorage
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('iphone_home_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // SAVE TO LOCALSTORAGE whenever cart changes
+  // 2. Save to LocalStorage on change
   useEffect(() => {
     localStorage.setItem('iphone_home_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // --- Cart Management Functions ---
-
+  // --- Cart Logic ---
   const addToCart = (product) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
-      
       if (existingItem) {
         return prevCart.map(item =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
@@ -40,19 +36,16 @@ export const ShopProvider = ({ children }) => {
 
   const updateQuantity = (productId, amount) => {
     setCart(prevCart => {
-      return prevCart
-        .map(item => {
+      return prevCart.map(item => {
           if (item.id === productId) {
             const newQuantity = item.quantity + amount;
             return newQuantity > 0 ? { ...item, quantity: newQuantity } : null; 
           }
           return item;
-        })
-        .filter(Boolean);
+        }).filter(Boolean);
     });
   };
 
-  // Clear cart (useful after order placement)
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('iphone_home_cart');
@@ -61,8 +54,7 @@ export const ShopProvider = ({ children }) => {
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-  // --- Checkout Logic ---
-
+  // --- CHECKOUT & EMAIL LOGIC ---
   const placeOrder = async (customerDetails) => {
     if (cart.length === 0) return { error: 'Cart is empty.' };
 
@@ -75,7 +67,7 @@ export const ShopProvider = ({ children }) => {
       customer_email: customerDetails.email,
       customer_address: customerDetails.address,
       payment_method: customerDetails.paymentMethod,
-      delivery_method: customerDetails.deliveryMethod, // Added this field
+      delivery_method: customerDetails.deliveryMethod,
       items: cart, 
       total_amount: cartTotal,
       status: 'Processing',
@@ -83,10 +75,22 @@ export const ShopProvider = ({ children }) => {
     };
 
     try {
+      // 1. Save to Supabase
       const { error } = await supabase.from('orders').insert([newOrder]);
       if (error) throw error;
       
-      clearCart(); // Clear cart on success
+      // 2. TRIGGER EMAIL (Fire and forget - don't block the UI if this fails)
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            order: newOrder,
+            customer_email: customerDetails.email 
+        })
+      }).catch(err => console.error("Email failed to send:", err));
+
+      // 3. Success
+      clearCart(); 
       return { success: true, order: newOrder };
 
     } catch (error) {
@@ -98,7 +102,7 @@ export const ShopProvider = ({ children }) => {
   const value = {
     cart,
     cartTotal,
-    cartCount, // This drives the badge
+    cartCount, 
     addToCart,
     removeFromCart,
     updateQuantity,

@@ -20,9 +20,9 @@ export default function Footer() {
             
             {/* Social Media Icons - REPLACE '#' WITH REAL LINKS */}
             <div style={{ display: 'flex', gap: '1rem' }}>
-              <SocialLink href="https://instagram.com/YOUR_HANDLE" icon={<InstagramIcon />} />
-              <SocialLink href="https://facebook.com/YOUR_HANDLE" icon={<FacebookIcon />} />
-              <SocialLink href="https://tiktok.com/@YOUR_HANDLE" icon={<TikTokIcon />} />
+              <SocialLink href="https://instagram.com/iphone_home_ghana" icon={<InstagramIcon />} />
+              <SocialLink href="https://facebook.com/p/iphone_home_ghana-100063818418939" icon={<FacebookIcon />} />
+              <SocialLink href="https://tiktok.com/@iphonehomeghana1" icon={<TikTokIcon />} />
             </div>
           </div>
 

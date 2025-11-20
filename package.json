@@ -13,6 +13,7 @@
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^7.9.6",
     "react-scripts": "5.0.1",
+    "resend": "^6.5.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
