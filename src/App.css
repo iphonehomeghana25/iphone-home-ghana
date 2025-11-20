@@ -440,9 +440,6 @@ button:hover {
     box-shadow: 0 15px 30px rgba(0,0,0,0.08);
 }
 
-9. CART PAGE STYLES (Mobile Optimized)
-   ========================================= */
-
 /* The Main Grid Layout */
 .cart-grid {
     display: grid;
