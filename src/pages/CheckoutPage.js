@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,17 +6,23 @@ export default function CheckoutPage() {
   const { cart, cartTotal, placeOrder } = useShop();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false); // <--- NEW STATE TO PREVENT REDIRECT
 
   const [formData, setFormData] = useState({
     fullName: '', phone: '', address: '', email: '',
     paymentMethod: 'Pay on Delivery', deliveryMethod: 'Delivery'
   });
 
-  // Redirect if cart is empty
-  if (cart.length === 0) {
-    setTimeout(() => navigate('/shop'), 100);
-    return null;
-  }
+  // --- SMARTER REDIRECT LOGIC ---
+  // Only redirect to shop if cart is empty AND we are NOT currently processing/successful
+  useEffect(() => {
+    if (cart.length === 0 && !loading && !isSuccess) {
+        navigate('/shop');
+    }
+  }, [cart, loading, isSuccess, navigate]);
+
+  // Prevent rendering if redirecting
+  if (cart.length === 0 && !loading && !isSuccess) return null;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,17 +32,15 @@ export default function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Dummy reset function as Context handles state internally
-    const dummyReset = () => {}; 
-
-    const response = await placeOrder(formData, dummyReset);
-
-    setLoading(false);
+    const response = await placeOrder(formData);
 
     if (response.success) {
-        alert(`Order Placed Successfully! Your Order ID is: ${response.order.id}`);
-        window.location.href = `/track`; 
+        setIsSuccess(true); // <--- FLAG AS SUCCESS BEFORE LOADING STOPS
+        setLoading(false);
+        // Navigate to confirmation
+        navigate('/order-confirmation', { state: { order: response.order } });
     } else {
+        setLoading(false);
         alert('Error placing order: ' + response.error);
     }
   };
@@ -50,7 +54,9 @@ export default function CheckoutPage() {
         {/* Order Preview */}
         <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '12px', border: '1px solid #eaecf0' }}>
             <h3 style={{ margin: 0 }}>Order Total: GH₵{cartTotal.toLocaleString()}</h3>
-            <p style={{ color: '#666', margin: '0.5rem 0 0 0' }}>{cart.length} Items in cart</p>
+            <p style={{ color: '#666', margin: '0.5rem 0 0 0' }}>
+                {cart.length} Items in cart
+            </p>
         </div>
 
         {/* Form */}
@@ -73,7 +79,7 @@ export default function CheckoutPage() {
                 </select>
             </div>
 
-            {/* Address Field (Only show if Delivery is selected) */}
+            {/* Address Field */}
             {formData.deliveryMethod === 'Delivery' && (
                 <textarea required name="address" placeholder="Delivery Address / Ghana Post GPS / Landmark" onChange={handleChange} style={{ ...inputStyle, height: '80px' }} />
             )}
@@ -86,7 +92,7 @@ export default function CheckoutPage() {
                     <option value="Pay Online">Pay Now (Bank Transfer / Mobile Money)</option>
                 </select>
 
-                {/* PAY ONLINE DETAILS (Dynamic Show) */}
+                {/* PAY ONLINE DETAILS */}
                 {formData.paymentMethod === 'Pay Online' && (
                     <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px' }}>
                         <p style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '0.5rem' }}>Make payment to:</p>

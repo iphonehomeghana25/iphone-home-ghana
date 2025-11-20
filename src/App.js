@@ -20,9 +20,10 @@ import {
 import StaffLogin from './pages/StaffLogin';
 import BNPLPage from './pages/BNPLPage';
 import TrackOrderPage from './pages/TrackOrderPage';
-import ShopPage from './pages/ShopPage';         // <--- ENSURE THIS IS IMPORTED
-import CartPage from './pages/CartPage';         // <--- ENSURE THIS IS IMPORTED
-import CheckoutPage from './pages/CheckoutPage'; // <--- ENSURE THIS IS IMPORTED
+import ShopPage from './pages/ShopPage';        
+import CartPage from './pages/CartPage';        
+import CheckoutPage from './pages/CheckoutPage'; 
+import OrderConfirmation from './pages/OrderConfirmation'; // <--- IMPORTED NEW PAGE
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
@@ -31,7 +32,6 @@ import ManageProducts from './admin/ManageProducts';
 import ManageOrders from './admin/ManageOrders';
 import ManageBNPL from './admin/ManageBNPL';
 
-// --- PUBLIC LAYOUT WRAPPER ---
 const PublicLayout = () => (
   <>
     <Header />
@@ -60,10 +60,10 @@ function App() {
               </main>
             } />
             
-            {/* --- CRITICAL FIX: THESE LINKS NOW POINT TO REAL PAGES --- */}
             <Route path="/shop" element={<ShopPage />} /> 
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} /> {/* <--- ADDED ROUTE */}
             
             <Route path="/track" element={<TrackOrderPage />} />
             <Route path="/bnpl" element={<BNPLPage />} />

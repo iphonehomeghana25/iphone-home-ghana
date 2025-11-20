@@ -419,3 +419,23 @@ button:hover {
     border-bottom: 1px solid #f9fafb;
 }
 .mobile-menu-link:last-child { border-bottom: none; }
+
+/* FIX: Product Card Animation & Positioning */
+.product-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex; 
+  flex-direction: column;
+  transition: all 0.3s ease;
+  
+  /* --- THE CRITICAL FIX --- */
+  position: relative; /* This keeps the 'Sold Out' overlay INSIDE the card */
+}
+
+.product-card:hover { 
+    border-color: var(--brand-yellow); 
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}

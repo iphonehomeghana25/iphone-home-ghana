@@ -1,0 +1,75 @@
+import React, { useEffect } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useShop } from '../context/ShopContext';
+
+export default function OrderConfirmation() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { order } = location.state || {}; // Get order passed from checkout
+
+  // Security check: If no order data, go back to shop
+  useEffect(() => {
+    if (!order) {
+        navigate('/');
+    }
+  }, [order, navigate]);
+
+  if (!order) return null;
+
+  const copyOrderId = () => {
+    navigator.clipboard.writeText(order.id);
+    alert('Order ID copied to clipboard!');
+  };
+
+  return (
+    <div className="container py-section" style={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ 
+        backgroundColor: 'white', 
+        padding: '3rem', 
+        borderRadius: '24px', 
+        border: '1px solid #eaecf0', 
+        maxWidth: '600px', 
+        width: '100%',
+        textAlign: 'center',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.05)'
+      }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+        <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>Order Confirmed!</h1>
+        <p style={{ color: '#667085', fontSize: '1.1rem', marginBottom: '2rem' }}>
+            Thank you, <strong>{order.customer_name.split(' ')[0]}</strong>! We have received your order.
+        </p>
+
+        <div style={{ backgroundColor: '#f9fafb', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid #eaecf0' }}>
+            <p style={{ fontSize: '0.9rem', color: '#667085', marginBottom: '0.5rem' }}>Your Order ID</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '1.5rem', fontWeight: '800', fontFamily: 'monospace', letterSpacing: '2px' }}>
+                    {order.id}
+                </span>
+                <button onClick={copyOrderId} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', backgroundColor: 'white', border: '1px solid #ccc', color: 'black' }}>
+                    Copy
+                </button>
+            </div>
+        </div>
+
+        <div style={{ textAlign: 'left', marginBottom: '2rem' }}>
+            <h3 style={{ borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>What happens next?</h3>
+            <ul style={{ listStyle: 'none', padding: 0, color: '#4b5563', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                <li style={{ marginBottom: '0.5rem' }}>✅ Check your email for the receipt.</li>
+                <li style={{ marginBottom: '0.5rem' }}>📞 Our team will call you shortly to confirm.</li>
+                <li>🚚 You can track your delivery using the Order ID.</li>
+            </ul>
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/track">
+                <button style={{ backgroundColor: 'white', color: 'black', border: '1px solid black' }}>Track Order</button>
+            </Link>
+            <Link to="/">
+                <button>Continue Shopping</button>
+            </Link>
+        </div>
+
+      </div>
+    </div>
+  );
+}

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 // 1. Create the Context
@@ -6,9 +6,18 @@ const ShopContext = createContext();
 
 export const useShop = () => useContext(ShopContext);
 
-// 2. Create the Provider (The wrapper for the whole app)
+// 2. Create the Provider
 export const ShopProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+  // INITIALIZE CART from LocalStorage if available
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('iphone_home_cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  // SAVE TO LOCALSTORAGE whenever cart changes
+  useEffect(() => {
+    localStorage.setItem('iphone_home_cart', JSON.stringify(cart));
+  }, [cart]);
 
   // --- Cart Management Functions ---
 
@@ -17,13 +26,10 @@ export const ShopProvider = ({ children }) => {
       const existingItem = prevCart.find(item => item.id === product.id);
       
       if (existingItem) {
-        // Increase quantity if item already exists
         return prevCart.map(item =>
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      
-      // Add new item to cart
       return [...prevCart, { ...product, quantity: 1 }];
     });
   };
@@ -38,50 +44,49 @@ export const ShopProvider = ({ children }) => {
         .map(item => {
           if (item.id === productId) {
             const newQuantity = item.quantity + amount;
-            // Remove item if quantity drops to 0
             return newQuantity > 0 ? { ...item, quantity: newQuantity } : null; 
           }
           return item;
         })
-        .filter(Boolean); // Removes null items (quantity 0)
+        .filter(Boolean);
     });
   };
 
+  // Clear cart (useful after order placement)
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem('iphone_home_cart');
+  };
+
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-  // --- Checkout and Order Placement ---
+  // --- Checkout Logic ---
 
-  const placeOrder = async (customerDetails, resetCart) => {
+  const placeOrder = async (customerDetails) => {
     if (cart.length === 0) return { error: 'Cart is empty.' };
 
-    const newOrderId = `IHG-${Math.floor(Math.random() * 90000) + 10000}`; // Generate ID like IHG-12345
+    const newOrderId = `IHG-${Math.floor(Math.random() * 90000) + 10000}`;
     
     const newOrder = {
       id: newOrderId,
       customer_name: customerDetails.fullName,
       customer_phone: customerDetails.phone,
-      customer_email: customerDetails.email, // Required for future email receipt
+      customer_email: customerDetails.email,
       customer_address: customerDetails.address,
       payment_method: customerDetails.paymentMethod,
-      items: cart, // The cart contents (saved as JSONB in Supabase)
+      delivery_method: customerDetails.deliveryMethod, // Added this field
+      items: cart, 
       total_amount: cartTotal,
       status: 'Processing',
       created_at: new Date().toISOString()
     };
 
     try {
-      // 1. Save order to Supabase
-      const { error } = await supabase
-        .from('orders')
-        .insert([newOrder]);
-
+      const { error } = await supabase.from('orders').insert([newOrder]);
       if (error) throw error;
       
-      // 2. Clear the local cart
-      resetCart(); 
-
-      // NOTE: Email sending logic will go here later
-      
+      clearCart(); // Clear cart on success
       return { success: true, order: newOrder };
 
     } catch (error) {
@@ -93,11 +98,11 @@ export const ShopProvider = ({ children }) => {
   const value = {
     cart,
     cartTotal,
+    cartCount, // This drives the badge
     addToCart,
     removeFromCart,
     updateQuantity,
     placeOrder,
-    cartCount: cart.reduce((count, item) => count + item.quantity, 0),
   };
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
