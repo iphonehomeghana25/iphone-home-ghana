@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo1.png'; // <--- IMPORTED LOGO HERE
 
 export default function Footer() {
   return (
@@ -11,14 +12,14 @@ export default function Footer() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '1.5rem' }}>
                 {/* Logo Icon */}
-                <img src={`${process.env.PUBLIC_URL}/favicon.svg`} alt="Logo" style={{ width: '32px', height: '32px' }} />
+                <img src={logo} alt="iPhone Home Ghana Logo" style={{ width: '32px', height: 'auto' }} />
                 <span style={{ fontSize: '1.6rem', fontWeight: '800', color: 'white', letterSpacing: '-0.02em' }}>iPhone Home</span>
             </div>
             <p style={{ color: '#9ca3af', lineHeight: '1.6', marginBottom: '2rem', fontSize: '0.95rem' }}>
               Your verified source for Apple devices in Accra. Brand new and neat UK used phones delivered to your door.
             </p>
             
-            {/* Social Media Icons - REPLACE '#' WITH REAL LINKS */}
+            {/* Social Media Icons */}
             <div style={{ display: 'flex', gap: '1rem' }}>
               <SocialLink href="https://instagram.com/iphone_home_ghana" icon={<InstagramIcon />} />
               <SocialLink href="https://facebook.com/p/iphone_home_ghana-100063818418939" icon={<FacebookIcon />} />
@@ -35,7 +36,6 @@ export default function Footer() {
               <li><Link to="/shop" className="footer-link">UK Used iPhones</Link></li>
               <li><Link to="/bnpl" className="footer-link">Buy Now Pay Later</Link></li>
             
-              
               {/* Staff Portal Link */}
               <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #333' }}>
                 <Link to="/staff-login" className="footer-link" style={{ fontSize: '0.85rem', color: '#6b7280' }}>

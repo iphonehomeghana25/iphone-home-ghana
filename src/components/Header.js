@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useShop } from '../context/ShopContext'; 
+import logo from '../assets/logo1.png'; // <--- IMPORTED LOGO HERE
 import '../App.css'; 
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const cartCount = 0; 
+  
+  const { cartCount } = useShop(); 
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
@@ -15,7 +18,8 @@ export default function Header() {
         
         {/* Logo */}
         <Link to="/" className="logo-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <img src={`${process.env.PUBLIC_URL}/favicon.svg`} alt="Logo" />
+            {/* Updated to use the imported logo variable */}
+            <img src={logo} alt="iPhone Home Ghana Logo" style={{ height: '40px', width: 'auto' }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'black' }}>iPhone Home Ghana</span>
         </Link>
 
@@ -34,12 +38,13 @@ export default function Header() {
                 <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
+            {/* Only show badge if count > 0 */}
             {cartCount > 0 && (
                 <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: 'var(--brand-yellow)', color: 'black', fontSize: '0.75rem', fontWeight: 'bold', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{cartCount}</span>
             )}
           </div>
 
-          {/* HAMBURGER BUTTON (ID added for stronger CSS targeting) */}
+          {/* HAMBURGER BUTTON */}
           <button 
             id="mobile-menu-btn"
             className="mobile-only" 
@@ -59,7 +64,7 @@ export default function Header() {
       {/* MOBILE MENU OVERLAY */}
       {isMobileMenuOpen && (
         <>
-            {/* 1. The Backdrop (Invisible layer to catch clicks outside) */}
+            {/* 1. The Backdrop */}
             <div className="mobile-menu-backdrop" onClick={closeMenu}></div>
 
             {/* 2. The Menu Itself */}
