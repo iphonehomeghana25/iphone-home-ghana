@@ -18,12 +18,24 @@ import {
 
 // Pages
 import StaffLogin from './pages/StaffLogin';
+import BNPLPage from './pages/BNPLPage';
+import TrackOrderPage from './pages/TrackOrderPage';
+
+// Admin Components
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
 import ManageProducts from './admin/ManageProducts';
 import ManageOrders from './admin/ManageOrders';
-import BNPLPage from './pages/BNPLPage';
-import TrackOrderPage from './pages/TrackOrderPage';
+import ManageBNPL from './admin/ManageBNPL'; // <--- Ensure this import is here
+
+// --- PUBLIC LAYOUT WRAPPER ---
+const PublicLayout = () => (
+  <>
+    <Header />
+    <Outlet />
+    <Footer />
+  </>
+);
 
 function App() {
   return (
@@ -33,7 +45,7 @@ function App() {
 
       <Routes>
         
-        {/* --- PUBLIC LAYOUT --- */}
+        {/* --- PUBLIC ROUTES --- */}
         <Route element={<PublicLayout />}>
             <Route path="/" element={
               <main>
@@ -55,30 +67,18 @@ function App() {
             <Route path="/staff-login" element={<StaffLogin />} />
         </Route>
 
-        {/* --- ADMIN LAYOUT (Sidebar + Content) --- */}
-        {/* IMPORTANT: The <Route> below must NOT have a /> at the end. It must wrap the children. */}
+        {/* --- ADMIN ROUTES --- */}
         <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<ManageProducts />} />
             <Route path="orders" element={<ManageOrders />} />
-            <Route path="bnpl" element={<h1>Manage Debtors Coming Soon</h1>} />
+            <Route path="bnpl" element={<ManageBNPL />} /> {/* <--- CONNECTED HERE */}
         </Route>
 
       </Routes>
       
     </div>
   );
-}
-
-// Wrapper for public pages
-function PublicLayout() {
-    return (
-        <>
-            <Header />
-            <Outlet />
-            <Footer />
-        </>
-    );
 }
 
 export default App;

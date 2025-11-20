@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import AdminHeader from './AdminHeader'; // <--- IMPORTED HEADER
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -30,6 +31,12 @@ export default function AdminLayout() {
     await supabase.auth.signOut();
     navigate('/staff-login');
   };
+
+  // --- Page Title Logic ---
+  let pageTitle = 'Dashboard';
+  if (location.pathname.includes('products')) pageTitle = 'Product Management';
+  if (location.pathname.includes('orders')) pageTitle = 'Order Management';
+  if (location.pathname.includes('bnpl')) pageTitle = 'BNPL Debtors';
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
@@ -122,12 +129,18 @@ export default function AdminLayout() {
       <main style={{ 
           flexGrow: 1, 
           marginLeft: sidebarWidth, /* This pushes content away from the sidebar */
-          padding: '2.5rem', 
+          // Removed padding here so the Header goes full width
           transition: 'margin-left 0.3s ease', /* Smooths the push */
           width: `calc(100% - ${sidebarWidth})`, /* Ensures it fills remaining space */
           boxSizing: 'border-box'
       }}>
-        <Outlet />
+        {/* 1. The Top Navigation Bar */}
+        <AdminHeader title={pageTitle} />
+
+        {/* 2. The Page Content (With Padding) */}
+        <div style={{ padding: '2.5rem' }}>
+            <Outlet />
+        </div>
       </main>
     </div>
   );

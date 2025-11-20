@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import RecentOrders from './RecentOrders'; 
+import LowStockAlert from './LowStockAlert'; // <--- ADDED THIS IMPORT
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, bnpl: 0 });
@@ -29,17 +31,23 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '2rem' }}>Dashboard Overview</h1>
-      
+      {/* Stats Row */}
       {loading ? (
         <p>Loading stats...</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
           <StatCard title="Total Products" value={stats.products} icon="📱" color="#eff6ff" textColor="#1d4ed8" />
           <StatCard title="Total Orders" value={stats.orders} icon="📦" color="#f0fdf4" textColor="#15803d" />
           <StatCard title="Active Debtors" value={stats.bnpl} icon="📒" color="#fef2f2" textColor="#b91c1c" />
         </div>
       )}
+
+      {/* NEW: Low Stock Alert Section */}
+      <LowStockAlert />
+
+      {/* Recent Activity Section */}
+      <RecentOrders />
+
     </div>
   );
 }
@@ -52,7 +60,7 @@ function StatCard({ title, value, icon, color, textColor }) {
     }}>
       <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' }}>{icon}</div>
       <div>
-        <p style={{ color: '#667085', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase' }}>{title}</p>
+        <p style={{ color: '#667085', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', margin: 0 }}>{title}</p>
         <h2 style={{ fontSize: '2.5rem', fontWeight: '800', color: textColor, margin: 0 }}>{value}</h2>
       </div>
     </div>
