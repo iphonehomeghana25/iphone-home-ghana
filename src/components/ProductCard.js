@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useShop } from '../context/ShopContext'; // <--- IMPORT CONTEXT
 import '../App.css';
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
+  const { addToCart } = useShop(); // <--- Use context function
 
   if (!product) return null;
 
@@ -15,6 +17,15 @@ export default function ProductCard({ product }) {
   }).format(product.price);
 
   const isOutOfStock = product.stock_status === 'Out of Stock';
+
+  const handleBuyNow = (e) => {
+      e.stopPropagation(); // Prevents issues if card itself is clickable
+      if (!isOutOfStock) {
+          addToCart(product);
+          // Optional: Navigate to cart after adding
+          navigate('/cart');
+      }
+  };
 
   return (
     <div className="product-card" style={{ opacity: isOutOfStock ? 0.7 : 1 }}>
@@ -45,7 +56,7 @@ export default function ProductCard({ product }) {
         <p className="category">{product.category}</p>
         <h3>{product.name}</h3>
         
-        {/* NEW: Details Specs Row */}
+        {/* Specs Row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#555' }}>
             {product.storage && <span style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{product.storage}</span>}
             {product.color && <span style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{product.color}</span>}
@@ -60,7 +71,7 @@ export default function ProductCard({ product }) {
         
         <button 
           className="add-btn"
-          onClick={() => navigate('/cart')}
+          onClick={handleBuyNow}
           disabled={isOutOfStock}
           style={{ 
               backgroundColor: isOutOfStock ? '#ccc' : 'var(--brand-yellow)',

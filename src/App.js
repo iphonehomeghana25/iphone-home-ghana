@@ -14,19 +14,22 @@ import {
   TrackOrderInput, 
   ShopAllCTA,
   BNPLBanner 
-} from './components/HomeSections';
+} from './components/HomeSections'; 
 
 // Pages
 import StaffLogin from './pages/StaffLogin';
 import BNPLPage from './pages/BNPLPage';
 import TrackOrderPage from './pages/TrackOrderPage';
+import ShopPage from './pages/ShopPage';         // <--- ENSURE THIS IS IMPORTED
+import CartPage from './pages/CartPage';         // <--- ENSURE THIS IS IMPORTED
+import CheckoutPage from './pages/CheckoutPage'; // <--- ENSURE THIS IS IMPORTED
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
 import ManageProducts from './admin/ManageProducts';
 import ManageOrders from './admin/ManageOrders';
-import ManageBNPL from './admin/ManageBNPL'; // <--- Ensure this import is here
+import ManageBNPL from './admin/ManageBNPL';
 
 // --- PUBLIC LAYOUT WRAPPER ---
 const PublicLayout = () => (
@@ -40,9 +43,6 @@ const PublicLayout = () => (
 function App() {
   return (
     <div className="app-wrapper">
-      <title>iPhone Home Ghana | Buy Brand New & UK Used iPhones in Accra</title>
-      <meta name="description" content="Trusted iPhone dealer in Accra. Locations: Haatso & Circle. Buy authentic Apple products with warranty." />
-
       <Routes>
         
         {/* --- PUBLIC ROUTES --- */}
@@ -60,8 +60,11 @@ function App() {
               </main>
             } />
             
-            <Route path="/shop" element={<div className="container py-16" style={{textAlign:'center'}}><h1>Shop Page Coming Soon</h1></div>} />
-            <Route path="/cart" element={<div className="container py-16" style={{textAlign:'center'}}><h1>Your Cart</h1></div>} />
+            {/* --- CRITICAL FIX: THESE LINKS NOW POINT TO REAL PAGES --- */}
+            <Route path="/shop" element={<ShopPage />} /> 
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            
             <Route path="/track" element={<TrackOrderPage />} />
             <Route path="/bnpl" element={<BNPLPage />} />
             <Route path="/staff-login" element={<StaffLogin />} />
@@ -72,11 +75,10 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<ManageProducts />} />
             <Route path="orders" element={<ManageOrders />} />
-            <Route path="bnpl" element={<ManageBNPL />} /> {/* <--- CONNECTED HERE */}
+            <Route path="bnpl" element={<ManageBNPL />} />
         </Route>
 
       </Routes>
-      
     </div>
   );
 }

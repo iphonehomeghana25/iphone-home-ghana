@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 export default function ManageOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -34,7 +35,7 @@ export default function ManageOrders() {
 
       if (error) throw error;
       
-      // Optimistic update (update UI immediately)
+      // Update local state immediately
       setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
       alert(`Order #${id} updated to ${newStatus}`);
     } catch (error) {
@@ -42,52 +43,87 @@ export default function ManageOrders() {
     }
   };
 
+  // Search Filter
+  const filteredOrders = orders.filter(order => 
+    order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customer_phone.includes(searchTerm)
+  );
+
   return (
     <div>
-      <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '2rem' }}>Manage Orders</h1>
+      {/* Header & Search */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>Manage Orders</h1>
+        <input 
+            type="text" 
+            placeholder="Search Order ID or Name..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid #d0d5dd', width: '300px' }}
+        />
+      </div>
       
       <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #eaecf0', overflow: 'hidden' }}>
         {loading ? (
           <p style={{ padding: '2rem' }}>Loading orders...</p>
-        ) : orders.length === 0 ? (
-           <p style={{ padding: '2rem' }}>No orders found.</p> 
+        ) : filteredOrders.length === 0 ? (
+           <p style={{ padding: '2rem', color: '#667085' }}>No orders found matching your search.</p> 
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #eaecf0' }}>
               <tr>
                 <th style={thStyle}>Order ID</th>
-                <th style={thStyle}>Customer</th>
+                <th style={thStyle}>Customer Info</th>
+                <th style={thStyle}>Items</th>
                 <th style={thStyle}>Total</th>
                 <th style={thStyle}>Status</th>
-                <th style={thStyle}>Action</th>
+                <th style={thStyle}>Update</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <tr key={order.id} style={{ borderBottom: '1px solid #eaecf0' }}>
-                  <td style={tdStyle}><span style={{ fontFamily: 'monospace', fontWeight: '600' }}>{order.id}</span></td>
                   <td style={tdStyle}>
-                      <div style={{fontWeight:'600'}}>{order.customer_name}</div>
-                      <div style={{fontSize:'0.85rem', color:'#666'}}>{order.customer_phone}</div>
+                    <span style={{ fontFamily: 'monospace', fontWeight: '700', color: '#101828' }}>#{order.id}</span>
+                    <div style={{ fontSize: '0.75rem', color: '#667085' }}>{new Date(order.created_at).toLocaleDateString()}</div>
                   </td>
-                  <td style={tdStyle}>GH₵{order.total_amount}</td>
+                  
+                  <td style={tdStyle}>
+                      <div style={{fontWeight:'600', color: '#101828'}}>{order.customer_name}</div>
+                      <div style={{fontSize:'0.85rem', color:'#667085'}}>{order.customer_phone}</div>
+                      <div style={{fontSize:'0.8rem', color:'#667085'}}>{order.customer_address}</div>
+                  </td>
+
+                  <td style={tdStyle}>
+                     <div style={{ fontSize: '0.85rem', color: '#344054' }}>
+                        {/* Ensure items are displayed if jsonb is formatted correctly */}
+                        {order.items && Array.isArray(order.items) && order.items.map((item, idx) => (
+                            <div key={idx}>• {item.name} (x{item.quantity})</div>
+                        ))}
+                     </div>
+                  </td>
+
+                  <td style={tdStyle}><strong style={{ color: '#101828' }}>GH₵{order.total_amount}</strong></td>
+                  
                   <td style={tdStyle}>
                     <span style={{ 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
-                        backgroundColor: order.status === 'Delivered' ? '#f0fdf4' : order.status === 'Shipped' ? '#eff6ff' : '#fffbeb',
-                        color: order.status === 'Delivered' ? '#15803d' : order.status === 'Shipped' ? '#1d4ed8' : '#b45309'
+                        padding: '4px 10px', 
+                        borderRadius: '100px', 
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        backgroundColor: getStatusColor(order.status).bg,
+                        color: getStatusColor(order.status).text
                     }}>
                         {order.status}
                     </span>
                   </td>
+
                   <td style={tdStyle}>
                     <select 
                         value={order.status} 
                         onChange={(e) => updateStatus(order.id, e.target.value)}
-                        style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #d0d5dd' }}
+                        style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #d0d5dd', fontSize: '0.9rem', cursor: 'pointer' }}
                     >
                         <option value="Processing">Processing</option>
                         <option value="Shipped">Shipped</option>
@@ -105,5 +141,14 @@ export default function ManageOrders() {
   );
 }
 
-const thStyle = { textAlign: 'left', padding: '1rem', fontSize: '0.9rem', color: '#667085' };
-const tdStyle = { padding: '1rem', fontSize: '0.95rem' };
+const thStyle = { textAlign: 'left', padding: '1rem', fontSize: '0.85rem', color: '#667085', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' };
+const tdStyle = { padding: '1rem', fontSize: '0.95rem', verticalAlign: 'top' };
+
+function getStatusColor(status) {
+    switch(status) {
+        case 'Delivered': return { bg: '#ecfdf5', text: '#027a48' };
+        case 'Shipped': return { bg: '#eff6ff', text: '#175cd3' };
+        case 'Cancelled': return { bg: '#fef2f2', text: '#b42318' };
+        default: return { bg: '#fffbeb', text: '#b54708' };
+    }
+}
