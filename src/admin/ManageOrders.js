@@ -43,6 +43,25 @@ export default function ManageOrders() {
     }
   };
 
+  // --- NEW: DELETE FUNCTION ---
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this order? This cannot be undone.')) {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            // Remove from UI
+            setOrders(orders.filter(o => o.id !== id));
+        } catch (error) {
+            alert('Error deleting order: ' + error.message);
+        }
+    }
+  };
+
   // Search Filter
   const filteredOrders = orders.filter(order => 
     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,6 +98,7 @@ export default function ManageOrders() {
                 <th style={thStyle}>Total</th>
                 <th style={thStyle}>Status</th>
                 <th style={thStyle}>Update</th>
+                <th style={thStyle}>Actions</th> {/* New Header */}
               </tr>
             </thead>
             <tbody>
@@ -87,6 +107,7 @@ export default function ManageOrders() {
                   <td style={tdStyle}>
                     <span style={{ fontFamily: 'monospace', fontWeight: '700', color: '#101828' }}>#{order.id}</span>
                     <div style={{ fontSize: '0.75rem', color: '#667085' }}>{new Date(order.created_at).toLocaleDateString()}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#101828', fontWeight: '600', marginTop: '4px' }}>{order.delivery_method || 'Delivery'}</div>
                   </td>
                   
                   <td style={tdStyle}>
@@ -96,12 +117,11 @@ export default function ManageOrders() {
                   </td>
 
                   <td style={tdStyle}>
-                     <div style={{ fontSize: '0.85rem', color: '#344054' }}>
-                        {/* Ensure items are displayed if jsonb is formatted correctly */}
+                      <div style={{ fontSize: '0.85rem', color: '#344054' }}>
                         {order.items && Array.isArray(order.items) && order.items.map((item, idx) => (
                             <div key={idx}>• {item.name} (x{item.quantity})</div>
                         ))}
-                     </div>
+                      </div>
                   </td>
 
                   <td style={tdStyle}><strong style={{ color: '#101828' }}>GH₵{order.total_amount}</strong></td>
@@ -130,6 +150,25 @@ export default function ManageOrders() {
                         <option value="Delivered">Delivered</option>
                         <option value="Cancelled">Cancelled</option>
                     </select>
+                  </td>
+                  
+                  {/* NEW: Delete Button */}
+                  <td style={tdStyle}>
+                    <button 
+                        onClick={() => handleDelete(order.id)}
+                        style={{ 
+                            padding: '0.5rem', 
+                            backgroundColor: '#fee2e2', 
+                            color: '#dc2626', 
+                            border: 'none', 
+                            borderRadius: '6px', 
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            fontSize: '0.8rem'
+                        }}
+                    >
+                        Delete
+                    </button>
                   </td>
                 </tr>
               ))}

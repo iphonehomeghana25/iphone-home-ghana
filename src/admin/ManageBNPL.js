@@ -18,10 +18,19 @@ export default function ManageBNPL() {
 
   async function fetchDebtors() {
     try {
-      const { data, error } = await supabase.from('bnpl_records').select('*').order('date_issued', { ascending: false });
+      // FIXED: Changed sorting to 'id' to ensure it always works
+      const { data, error } = await supabase
+        .from('bnpl_records')
+        .select('*')
+        .order('id', { ascending: false }); 
+
       if (error) throw error;
       setDebtors(data || []);
-    } catch (error) { console.error(error); } finally { setLoading(false); }
+    } catch (error) { 
+        console.error('Error fetching debtors:', error.message); 
+    } finally { 
+        setLoading(false); 
+    }
   }
 
   const handleChange = (e) => {
@@ -32,7 +41,6 @@ export default function ManageBNPL() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Calculate initial remaining debt based on deposit
       const initialRemaining = parseFloat(formData.total_debt) - parseFloat(formData.amount_paid);
       
       const record = {
@@ -46,13 +54,24 @@ export default function ManageBNPL() {
       if (error) throw error;
       
       alert('BNPL Customer Registered!');
-      // Reset Form
       setFormData({ customer_name: '', phone_number: '', ghana_card_number: '', item_taken: '', total_debt: '', amount_paid: '0', is_fully_paid: false });
       fetchDebtors();
     } catch (error) { alert(error.message); }
   };
 
-  // Function to add a payment to an existing debt
+  // Delete Function
+  const handleDelete = async (id) => {
+      if (window.confirm('Delete this debtor record? This action cannot be undone.')) {
+          try {
+              const { error } = await supabase.from('bnpl_records').delete().eq('id', id);
+              if (error) throw error;
+              setDebtors(debtors.filter(d => d.id !== id));
+          } catch (error) {
+              alert('Error deleting record: ' + error.message);
+          }
+      }
+  };
+
   const addPayment = async (debtor) => {
     const newPayment = prompt(`Enter amount paid for ${debtor.item_taken}:`);
     if (newPayment && !isNaN(newPayment) && parseFloat(newPayment) > 0) {
@@ -156,14 +175,23 @@ export default function ManageBNPL() {
                                     </span>
                                 </td>
                                 <td style={tdStyle}>
-                                    {!isPaidOff && (
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        {!isPaidOff && (
+                                            <button 
+                                                onClick={() => addPayment(d)}
+                                                style={{ padding: '0.5rem 0.8rem', backgroundColor: 'var(--brand-yellow)', border: 'none', borderRadius: '6px', cursor: 'pointer', color: 'black', fontWeight: '600', fontSize: '0.8rem' }}
+                                            >
+                                                Pay
+                                            </button>
+                                        )}
+                                        {/* Delete Button */}
                                         <button 
-                                            onClick={() => addPayment(d)}
-                                            style={{ padding: '0.5rem 1rem', backgroundColor: 'var(--brand-yellow)', border: 'none', borderRadius: '6px', cursor: 'pointer', color: 'black', fontWeight: '600', fontSize: '0.8rem' }}
+                                            onClick={() => handleDelete(d.id)}
+                                            style={{ padding: '0.5rem 0.8rem', backgroundColor: '#fee2e2', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#dc2626', fontWeight: '600', fontSize: '0.8rem' }}
                                         >
-                                            Add Payment
+                                            Delete
                                         </button>
-                                    )}
+                                    </div>
                                 </td>
                             </tr>
                         );
