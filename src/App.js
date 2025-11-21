@@ -1,12 +1,12 @@
 import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import './App.css';
-import ScrollToTop from './components/ScrollToTop'; // <--- IMPORT THIS
+import ScrollToTop from './components/ScrollToTop';
 
 // Components
 import Header from './components/Header';
 import ShopHero from './components/ShopHero';
-import FeaturedProducts from './components/FeaturedProducts';
+import FeaturedProducts from './components/FeaturedProducts'; // <--- Using our new reusable component
 import Footer from './components/Footer';
 import { 
   FeaturesSection, 
@@ -35,7 +35,7 @@ import ManageBNPL from './admin/ManageBNPL';
 
 const PublicLayout = () => (
   <>
-    <ScrollToTop /> {/* <--- ACTIVATE SCROLL FIX HERE */}
+    <ScrollToTop />
     <Header />
     <Outlet />
     <Footer />
@@ -53,8 +53,24 @@ function App() {
               <main>
                 <ShopHero />
                 <FeaturesSection />
-                <FeaturedProducts />
+                
+                {/* 1. PHONES SECTION */}
+                <FeaturedProducts 
+                    title="Just Arrived" 
+                    subtitle="Fresh stock from the UK and Brand New boxes."
+                    filterMode="phones"
+                />
+
                 <HowItWorksSection />
+                
+                {/* 2. ACCESSORIES SECTION */}
+                <FeaturedProducts 
+                    title="Essential Accessories" 
+                    subtitle="Chargers, Cases, and Screen Protectors."
+                    filterMode="accessories"
+                    bgColor="#f9fafb" // Subtle grey background to separate it
+                />
+
                 <TestimonialsSection />
                 <TrackOrderInput />
                 <BNPLBanner />
