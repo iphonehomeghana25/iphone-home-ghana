@@ -42,7 +42,7 @@ export default function ManageProducts() {
     } catch (error) { alert('Error: ' + error.message); } finally { setUploading(false); }
   };
 
-  // --- NEW: Handle Edit Click ---
+  // --- Handle Edit Click ---
   const handleEditClick = (product) => {
     setEditingId(product.id);
     setFormData({
@@ -172,6 +172,18 @@ export default function ManageProducts() {
         </form>
       </div>
 
+      {/* --- SEARCH BAR SECTION (Added Here) --- */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3 style={{ fontWeight: '700', margin: 0 }}>Inventory ({filteredProducts.length})</h3>
+        <input 
+            type="text" 
+            placeholder="Search products..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ padding: '0.6rem', borderRadius: '8px', border: '1px solid #d0d5dd', width: '250px' }}
+        />
+      </div>
+
       {/* --- PRODUCT LIST --- */}
       <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #eaecf0', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -184,7 +196,10 @@ export default function ManageProducts() {
                     {filteredProducts.map(p => (
                         <tr key={p.id} style={{ borderBottom: '1px solid #eaecf0' }}>
                             <td style={tdStyle}><img src={p.image_url} alt={p.name} style={{ width: '40px', height: '40px', objectFit: 'contain' }} /></td>
-                            <td style={tdStyle}><div style={{fontWeight:'600'}}>{p.name}</div></td>
+                            <td style={tdStyle}>
+                                <div style={{fontWeight:'600'}}>{p.name}</div>
+                                <div style={{fontSize:'0.8rem', color:'#666'}}>{p.category}</div>
+                            </td>
                             <td style={tdStyle}>GH₵{p.price}</td>
                             <td style={tdStyle}>
                                 <span style={{ 
