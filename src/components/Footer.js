@@ -80,6 +80,11 @@ export default function Footer() {
         {/* Footer Bottom */}
         <div style={{ borderTop: '1px solid #222', marginTop: '5rem', paddingTop: '2rem', textAlign: 'center', color: '#52525b', fontSize: '0.85rem' }}>
           <p>&copy; {new Date().getFullYear()} iPhone Home Ghana. All Rights Reserved.</p>
+          
+          {/* --- YOUR DEVELOPER CREDIT --- */}
+          <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#444' }}>
+            Developed by Suleman / Mistah kweku &#123;Eazi Tech Llc 020 281 3298 / 054 901 0934&#125;
+          </p>
         </div>
       </div>
     </footer>
