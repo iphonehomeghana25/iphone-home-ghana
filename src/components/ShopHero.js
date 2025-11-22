@@ -35,7 +35,7 @@ export default function ShopHero() {
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
                     <span>📍 Opposite Odor Rice, Circle Area</span>
-                    <span>📞 054 123 4567</span>
+                    <span>📞 053 585 5514</span>
                 </div>
 
                 <button onClick={() => navigate('/shop')}>Shop Circle Stock</button>
