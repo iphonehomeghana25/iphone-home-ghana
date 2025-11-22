@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useShop } from '../context/ShopContext';
-import ProductCard from '../components/ProductCard'; // Ensure this path is correct
+import ProductCard from '../components/ProductCard'; 
 
 export default function ShopPage() {
   const { addToCart } = useShop();
@@ -16,14 +16,40 @@ export default function ShopPage() {
 
   async function fetchProducts() {
     try {
-      // Fetch all products
+      // 1. Fetch all products (Newest First)
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: false }); // Newest first
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProducts(data || []);
+
+      if (data) {
+        // --- CUSTOM SORTING LOGIC START ---
+        
+        // A. Separate Phones vs Accessories
+        // We assume anything NOT 'Accessories' is a phone (Brand New / UK Used)
+        const phones = data.filter(p => p.category !== 'Accessories');
+        const accessories = data.filter(p => p.category === 'Accessories');
+
+        // B. Create the "VIP Section" (Top 12 Phones = ~3 Rows)
+        const topPhones = phones.slice(0, 12);
+        const remainingPhones = phones.slice(12);
+
+        // C. Create the "Mixed Section" (Rest of phones + All Accessories)
+        // We combine them and re-sort by date so they interleave naturally
+        const mixedBatch = [...remainingPhones, ...accessories].sort((a, b) => 
+            new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        // D. Combine: VIP Phones on top, Mixed items below
+        const finalSort = [...topPhones, ...mixedBatch];
+        
+        setProducts(finalSort);
+        // --- CUSTOM SORTING LOGIC END ---
+      } else {
+        setProducts([]);
+      }
     } catch (error) {
       console.error('Error fetching shop products:', error);
     } finally {
@@ -31,14 +57,10 @@ export default function ShopPage() {
     }
   }
   
-  // These must match EXACTLY what you select in ManageProducts.js
   const categories = ['All', 'Brand New', 'UK Used', 'Accessories'];
 
   const filteredProducts = products.filter(product => {
-    // 1. Check Category
     const matchesCategory = categoryFilter === 'All' || product.category === categoryFilter;
-    
-    // 2. Check Search (Name or Description)
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = product.name.toLowerCase().includes(searchLower) || 
                           (product.description && product.description.toLowerCase().includes(searchLower));
@@ -81,7 +103,7 @@ export default function ShopPage() {
               padding: '0.6rem 1.2rem',
               borderRadius: '100px',
               fontSize: '0.9rem',
-              background: categoryFilter === cat ? 'black' : '#f3f4f6', // Active: Black, Inactive: Light Gray
+              background: categoryFilter === cat ? 'black' : '#f3f4f6', 
               color: categoryFilter === cat ? 'white' : 'black',
               border: '1px solid transparent',
               fontWeight: '600',
@@ -105,7 +127,6 @@ export default function ShopPage() {
       ) : (
         <div className="product-grid-layout">
           {filteredProducts.map((product) => (
-            // ProductCard handles the 'Add to Cart' click internally via Context
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
