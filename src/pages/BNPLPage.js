@@ -146,7 +146,7 @@ export default function BNPLPage() {
                 </div>
                 <div>
                     <p style={{ fontWeight: 'bold', color: '#FFD700' }}>Circle Branch</p>
-                    <p>054 123 4567</p>
+                    <p>053 585 5514</p>
                 </div>
             </div>
         </div>
