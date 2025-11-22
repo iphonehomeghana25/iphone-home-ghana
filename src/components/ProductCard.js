@@ -1,15 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useShop } from '../context/ShopContext'; // <--- IMPORT CONTEXT
+import { useShop } from '../context/ShopContext'; 
 import '../App.css';
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
-  const { addToCart } = useShop(); // <--- Use context function
+  const { addToCart } = useShop(); 
 
   if (!product) return null;
 
-  // Format price
   const formattedPrice = new Intl.NumberFormat('en-GH', {
     style: 'currency',
     currency: 'GHS',
@@ -18,11 +17,16 @@ export default function ProductCard({ product }) {
 
   const isOutOfStock = product.stock_status === 'Out of Stock';
 
+  // --- FIXED BADGE LOGIC ---
+  // We now check the CATEGORY to determine the badge style and text
+  const isBrandNew = product.category === 'Brand New';
+  const badgeText = isBrandNew ? 'Brand New' : (product.category === 'Accessories' ? 'Accessory' : 'UK Used');
+  const badgeClass = isBrandNew ? 'new' : 'used';
+
   const handleBuyNow = (e) => {
-      e.stopPropagation(); // Prevents issues if card itself is clickable
+      e.stopPropagation(); 
       if (!isOutOfStock) {
           addToCart(product);
-          // Optional: Navigate to cart after adding
           navigate('/cart');
       }
   };
@@ -30,9 +34,9 @@ export default function ProductCard({ product }) {
   return (
     <div className="product-card" style={{ opacity: isOutOfStock ? 0.7 : 1 }}>
       
-      {/* Condition Badge */}
-      <span className={`condition-badge ${product.condition === 'New' ? 'new' : 'used'}`}>
-        {product.condition === 'New' ? 'Brand New' : 'UK Used'}
+      {/* Dynamic Badge based on Category */}
+      <span className={`condition-badge ${badgeClass}`}>
+        {badgeText}
       </span>
 
       {/* Out of Stock Overlay */}
@@ -56,7 +60,6 @@ export default function ProductCard({ product }) {
         <p className="category">{product.category}</p>
         <h3>{product.name}</h3>
         
-        {/* Specs Row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '0.5rem', fontSize: '0.8rem', color: '#555' }}>
             {product.storage && <span style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{product.storage}</span>}
             {product.color && <span style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px' }}>{product.color}</span>}

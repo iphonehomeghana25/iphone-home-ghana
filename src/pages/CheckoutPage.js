@@ -6,22 +6,20 @@ export default function CheckoutPage() {
   const { cart, cartTotal, placeOrder } = useShop();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false); // <--- NEW STATE TO PREVENT REDIRECT
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '', phone: '', address: '', email: '',
-    paymentMethod: 'Pay on Delivery', deliveryMethod: 'Delivery'
+    paymentMethod: 'Pay on Delivery', deliveryMethod: 'Delivery',
+    orderNotes: '' // <--- New State for Notes
   });
 
-  // --- SMARTER REDIRECT LOGIC ---
-  // Only redirect to shop if cart is empty AND we are NOT currently processing/successful
   useEffect(() => {
     if (cart.length === 0 && !loading && !isSuccess) {
         navigate('/shop');
     }
   }, [cart, loading, isSuccess, navigate]);
 
-  // Prevent rendering if redirecting
   if (cart.length === 0 && !loading && !isSuccess) return null;
 
   const handleChange = (e) => {
@@ -35,9 +33,8 @@ export default function CheckoutPage() {
     const response = await placeOrder(formData);
 
     if (response.success) {
-        setIsSuccess(true); // <--- FLAG AS SUCCESS BEFORE LOADING STOPS
+        setIsSuccess(true);
         setLoading(false);
-        // Navigate to confirmation
         navigate('/order-confirmation', { state: { order: response.order } });
     } else {
         setLoading(false);
@@ -69,7 +66,7 @@ export default function CheckoutPage() {
             
             <input required name="email" type="email" placeholder="Email Address (for receipt)" onChange={handleChange} style={inputStyle} />
             
-            {/* Delivery Method Selection */}
+            {/* Delivery Method */}
             <div style={{ border: '1px solid #d0d5dd', borderRadius: '8px', padding: '1rem' }}>
                 <label style={{display:'block', marginBottom:'0.8rem', fontWeight:'700'}}>Delivery Method</label>
                 <select name="deliveryMethod" onChange={handleChange} style={inputStyle}>
@@ -84,7 +81,18 @@ export default function CheckoutPage() {
                 <textarea required name="address" placeholder="Delivery Address / Ghana Post GPS / Landmark" onChange={handleChange} style={{ ...inputStyle, height: '80px' }} />
             )}
 
-            {/* Payment Method Selection */}
+            {/* --- NEW: Order Notes / Color Request --- */}
+            <div>
+                <label style={{display:'block', marginBottom:'0.5rem', fontWeight:'600'}}>Order Notes (Optional)</label>
+                <textarea 
+                    name="orderNotes" 
+                    placeholder="Type the color you want or any special instructions..." 
+                    onChange={handleChange} 
+                    style={{ ...inputStyle, height: '80px' }} 
+                />
+            </div>
+
+            {/* Payment Method */}
             <div style={{ border: '1px solid #d0d5dd', borderRadius: '8px', padding: '1rem' }}>
                 <label style={{display:'block', marginBottom:'0.8rem', fontWeight:'700'}}>Payment Method</label>
                 <select name="paymentMethod" onChange={handleChange} style={inputStyle}>
@@ -92,13 +100,12 @@ export default function CheckoutPage() {
                     <option value="Pay Online">Pay Now (Bank Transfer / Mobile Money)</option>
                 </select>
 
-                {/* PAY ONLINE DETAILS */}
                 {formData.paymentMethod === 'Pay Online' && (
                     <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px' }}>
                         <p style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '0.5rem' }}>Make payment to:</p>
                         <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '0.9rem', color: '#78350f' }}>
-                            <li style={{ marginBottom: '0.5rem' }}>🏦 <strong>Bank:</strong> Cal Bank/Osu Branch - 1400004044152 (Success Key Enterprise)</li>
-                            <li>📱 <strong>MTN Momo:</strong> 055 917 9484 (Richard Boateng / Success Key Enterprise)</li>
+                            <li style={{ marginBottom: '0.5rem' }}>🏦 <strong>Bank:</strong> GT Bank - 1234567890 (iPhone Home)</li>
+                            <li>📱 <strong>MTN Momo:</strong> 024 317 9760 (iPhone Home Ghana)</li>
                         </ul>
                         <p style={{ fontSize: '0.8rem', marginTop: '0.8rem', fontStyle: 'italic' }}>
                             *Please use your Name as Reference. We will confirm payment before delivery.*

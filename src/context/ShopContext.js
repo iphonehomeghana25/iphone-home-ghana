@@ -68,6 +68,7 @@ export const ShopProvider = ({ children }) => {
       customer_address: customerDetails.address,
       payment_method: customerDetails.paymentMethod,
       delivery_method: customerDetails.deliveryMethod,
+      order_notes: customerDetails.orderNotes, // <--- NEW FIELD ADDED HERE
       items: cart, 
       total_amount: cartTotal,
       status: 'Processing',
@@ -79,7 +80,7 @@ export const ShopProvider = ({ children }) => {
       const { error } = await supabase.from('orders').insert([newOrder]);
       if (error) throw error;
       
-      // 2. TRIGGER EMAIL (Fire and forget - don't block the UI if this fails)
+      // 2. TRIGGER EMAIL
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -35,7 +35,6 @@ export default function ManageOrders() {
 
       if (error) throw error;
       
-      // Update local state immediately
       setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
       alert(`Order #${id} updated to ${newStatus}`);
     } catch (error) {
@@ -43,7 +42,6 @@ export default function ManageOrders() {
     }
   };
 
-  // --- NEW: DELETE FUNCTION ---
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this order? This cannot be undone.')) {
         try {
@@ -54,7 +52,6 @@ export default function ManageOrders() {
 
             if (error) throw error;
 
-            // Remove from UI
             setOrders(orders.filter(o => o.id !== id));
         } catch (error) {
             alert('Error deleting order: ' + error.message);
@@ -62,7 +59,6 @@ export default function ManageOrders() {
     }
   };
 
-  // Search Filter
   const filteredOrders = orders.filter(order => 
     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -98,7 +94,7 @@ export default function ManageOrders() {
                 <th style={thStyle}>Total</th>
                 <th style={thStyle}>Status</th>
                 <th style={thStyle}>Update</th>
-                <th style={thStyle}>Actions</th> {/* New Header */}
+                <th style={thStyle}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -113,7 +109,22 @@ export default function ManageOrders() {
                   <td style={tdStyle}>
                       <div style={{fontWeight:'600', color: '#101828'}}>{order.customer_name}</div>
                       <div style={{fontSize:'0.85rem', color:'#667085'}}>{order.customer_phone}</div>
-                      <div style={{fontSize:'0.8rem', color:'#667085'}}>{order.customer_address}</div>
+                      <div style={{fontSize:'0.8rem', color:'#667085', marginBottom: '0.5rem'}}>{order.customer_address}</div>
+                      
+                      {/* --- NEW: ORDER NOTES DISPLAY --- */}
+                      {order.order_notes && (
+                          <div style={{ 
+                              backgroundColor: '#fffbeb', 
+                              border: '1px solid #fcd34d', 
+                              color: '#92400e',
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              fontSize: '0.8rem',
+                              marginTop: '0.5rem'
+                          }}>
+                              <strong>Note:</strong> {order.order_notes}
+                          </div>
+                      )}
                   </td>
 
                   <td style={tdStyle}>
@@ -124,7 +135,7 @@ export default function ManageOrders() {
                       </div>
                   </td>
 
-                  <td style={tdStyle}><strong style={{ color: '#101828' }}>GH₵{order.total_amount}</strong></td>
+                  <td style={tdStyle}><strong style={{ color: '#101828' }}>GH₵{order.total_amount.toLocaleString()}</strong></td>
                   
                   <td style={tdStyle}>
                     <span style={{ 
@@ -152,7 +163,6 @@ export default function ManageOrders() {
                     </select>
                   </td>
                   
-                  {/* NEW: Delete Button */}
                   <td style={tdStyle}>
                     <button 
                         onClick={() => handleDelete(order.id)}
