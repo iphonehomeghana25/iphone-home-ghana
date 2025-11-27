@@ -8,39 +8,38 @@ export default function AdminLayout() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024); // Check initially
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024); 
 
-  // --- SCREEN SIZE LISTENER ---
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // --- FIXED: Moved checkUser inside useEffect to remove dependency warning ---
   useEffect(() => {
-    checkUser();
-  }, []);
-
-  async function checkUser() {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    async function checkUser() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          navigate('/staff-login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
         navigate('/staff-login');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Auth check failed", error);
-      navigate('/staff-login');
-    } finally {
-      setLoading(false);
     }
-  }
+
+    checkUser();
+  }, [navigate]); // navigate is a stable dependency
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/staff-login');
   };
 
-  // --- MOBILE BLOCKER ---
   if (isMobile) {
     return (
         <div style={{ 
@@ -63,12 +62,11 @@ export default function AdminLayout() {
     );
   }
 
-  // --- NORMAL ADMIN LOGIC ---
   let pageTitle = 'Dashboard';
   if (location.pathname.includes('products')) pageTitle = 'Product Management';
   if (location.pathname.includes('orders')) pageTitle = 'Order Management';
   if (location.pathname.includes('bnpl')) pageTitle = 'BNPL Debtors';
-  if (location.pathname.includes('sales')) pageTitle = 'Sales Analytics'; // <--- ADDED TITLE LOGIC
+  if (location.pathname.includes('sales')) pageTitle = 'Sales Analytics';
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
@@ -76,15 +74,11 @@ export default function AdminLayout() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      
-      {/* --- SIDEBAR --- */}
       <aside style={{ 
           width: sidebarWidth, backgroundColor: 'white', borderRight: '1px solid #eaecf0', 
           padding: '1.5rem', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 50,
           transition: 'width 0.3s ease', overflowX: 'hidden', display: 'flex', flexDirection: 'column', boxSizing: 'border-box'
       }}>
-        
-        {/* Header & Toggle */}
         <div style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'space-between', height: '40px' }}>
              {!collapsed && (
                  <span style={{ fontSize: '1.2rem', fontWeight: '800', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden' }}>
@@ -103,16 +97,14 @@ export default function AdminLayout() {
              </button>
         </div>
 
-        {/* Links */}
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexGrow: 1 }}>
             <AdminLink to="/admin/dashboard" active={location.pathname === '/admin/dashboard'} label="Overview" icon="📊" collapsed={collapsed} />
             <AdminLink to="/admin/products" active={location.pathname === '/admin/products'} label="Products" icon="📱" collapsed={collapsed} />
             <AdminLink to="/admin/orders" active={location.pathname === '/admin/orders'} label="Orders" icon="📦" collapsed={collapsed} />
-            <AdminLink to="/admin/sales" active={location.pathname === '/admin/sales'} label="Sales" icon="📈" collapsed={collapsed} /> {/* <--- ADDED SALES LINK */}
+            <AdminLink to="/admin/sales" active={location.pathname === '/admin/sales'} label="Sales" icon="📈" collapsed={collapsed} />
             <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
         </nav>
 
-        {/* Logout */}
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #eaecf0' }}>
             <button 
                 onClick={handleLogout} 
@@ -128,7 +120,6 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT --- */}
       <main style={{ 
           flexGrow: 1, marginLeft: sidebarWidth, transition: 'margin-left 0.3s ease', 
           width: `calc(100% - ${sidebarWidth})`, boxSizing: 'border-box'

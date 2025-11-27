@@ -5,7 +5,7 @@ export default function ManageSales() {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('This Month'); // Default filter
+  const [filter, setFilter] = useState('This Month'); 
 
   const [stats, setStats] = useState({
     totalRevenue: 0,
@@ -17,9 +17,62 @@ export default function ManageSales() {
     fetchOrders();
   }, []);
 
+  // --- FIXED: Consolidated logic inside useEffect ---
   useEffect(() => {
-    applyFilter(filter);
-  }, [orders, filter]);
+    const applyFilter = () => {
+        const now = new Date();
+        let filtered = [];
+    
+        if (filter === 'All Time') {
+            filtered = orders;
+        } else {
+            filtered = orders.filter(order => {
+                const orderDate = new Date(order.created_at);
+                
+                if (filter === 'Today') {
+                    return orderDate.toDateString() === now.toDateString();
+                }
+                if (filter === 'This Week') {
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(now.getDate() - 7);
+                    return orderDate >= oneWeekAgo;
+                }
+                if (filter === 'This Month') {
+                    return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+                }
+                if (filter === 'This Year') {
+                    return orderDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+    
+        setFilteredOrders(filtered);
+        
+        // Calculate Stats inline
+        let revenue = 0;
+        let pending = 0;
+  
+        filtered.forEach(order => {
+            const amount = parseFloat(order.total_amount) || 0;
+            
+            if (order.status === 'Delivered') {
+                revenue += amount;
+            }
+            if (order.status === 'Processing' || order.status === 'Shipped') {
+                pending += amount;
+            }
+        });
+  
+        setStats({
+            totalRevenue: revenue,
+            pendingRevenue: pending,
+            orderCount: filtered.length
+        });
+    };
+
+    applyFilter();
+  }, [orders, filter]); // Now it correctly listens to dependencies
 
   async function fetchOrders() {
     try {
@@ -36,62 +89,6 @@ export default function ManageSales() {
       setLoading(false);
     }
   }
-
-  const applyFilter = (selectedFilter) => {
-    const now = new Date();
-    let filtered = [];
-
-    if (selectedFilter === 'All Time') {
-        filtered = orders;
-    } else {
-        filtered = orders.filter(order => {
-            const orderDate = new Date(order.created_at);
-            
-            if (selectedFilter === 'Today') {
-                return orderDate.toDateString() === now.toDateString();
-            }
-            if (selectedFilter === 'This Week') {
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(now.getDate() - 7);
-                return orderDate >= oneWeekAgo;
-            }
-            if (selectedFilter === 'This Month') {
-                return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-            }
-            if (selectedFilter === 'This Year') {
-                return orderDate.getFullYear() === now.getFullYear();
-            }
-            return true;
-        });
-    }
-
-    setFilteredOrders(filtered);
-    calculateStats(filtered);
-  };
-
-  const calculateStats = (data) => {
-      let revenue = 0;
-      let pending = 0;
-
-      data.forEach(order => {
-          const amount = parseFloat(order.total_amount) || 0;
-          
-          // "Delivered" = Cash in Hand
-          if (order.status === 'Delivered') {
-              revenue += amount;
-          }
-          // "Processing" or "Shipped" = Potential Cash
-          if (order.status === 'Processing' || order.status === 'Shipped') {
-              pending += amount;
-          }
-      });
-
-      setStats({
-          totalRevenue: revenue,
-          pendingRevenue: pending,
-          orderCount: data.length
-      });
-  };
 
   return (
     <div>
@@ -178,10 +175,9 @@ export default function ManageSales() {
   );
 }
 
-// Styles
 const cardStyle = (bg, color) => ({
     backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid #eaecf0',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.02)', borderLeft: `6px solid ${bg}` // Accent border
+    boxShadow: '0 2px 4px rgba(0,0,0,0.02)', borderLeft: `6px solid ${bg}`
 });
 const cardLabelStyle = { color: '#667085', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase', margin: 0 };
 const cardValueStyle = { fontSize: '2rem', fontWeight: '800', margin: '0.5rem 0 0 0', color: '#101828' };
