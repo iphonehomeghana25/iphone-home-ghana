@@ -25,6 +25,8 @@ import ShopPage from './pages/ShopPage';
 import CartPage from './pages/CartPage';        
 import CheckoutPage from './pages/CheckoutPage'; 
 import OrderConfirmation from './pages/OrderConfirmation';
+import BlogPage from './pages/BlogPage';         // <--- NEW: Blog List Page
+import BlogPostPage from './pages/BlogPostPage'; // <--- NEW: Single Blog Post Page
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
@@ -32,7 +34,8 @@ import Dashboard from './admin/Dashboard';
 import ManageProducts from './admin/ManageProducts';
 import ManageOrders from './admin/ManageOrders';
 import ManageBNPL from './admin/ManageBNPL';
-import ManageSales from './admin/ManageSales'; // <--- ADDED IMPORT HERE
+import ManageSales from './admin/ManageSales';
+import ManageBlog from './admin/ManageBlog';     // <--- NEW: Admin Blog Manager
 
 // --- WhatsApp Floating Button Component ---
 const WhatsAppButton = () => (
@@ -118,6 +121,9 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             
+            <Route path="/blog" element={<BlogPage />} /> {/* <--- NEW ROUTE */}
+            <Route path="/blog/:slug" element={<BlogPostPage />} /> {/* <--- NEW ROUTE */}
+
             <Route path="/track" element={<TrackOrderPage />} />
             <Route path="/bnpl" element={<BNPLPage />} />
             <Route path="/staff-login" element={<StaffLogin />} />
@@ -128,7 +134,8 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<ManageProducts />} />
             <Route path="orders" element={<ManageOrders />} />
-            <Route path="sales" element={<ManageSales />} /> {/* <--- ADDED ROUTE HERE */}
+            <Route path="sales" element={<ManageSales />} />
+            <Route path="blog" element={<ManageBlog />} /> {/* <--- NEW ROUTE */}
             <Route path="bnpl" element={<ManageBNPL />} />
         </Route>
 

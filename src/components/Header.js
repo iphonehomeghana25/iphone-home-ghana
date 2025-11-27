@@ -27,6 +27,7 @@ export default function Header() {
         <nav className="desktop-nav" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/shop" className="nav-link">Shop</Link>
+          <Link to="/blog" className="nav-link">Blog</Link> {/* <--- NEW: Blog Link */}
           <Link to="/bnpl" className="nav-link" style={{ color: '#d97706', fontWeight: 'bold' }}>Pay Later</Link>
           <Link to="/track" className="nav-link">Track Order</Link>
         </nav>
@@ -71,6 +72,7 @@ export default function Header() {
             <div className="mobile-menu-dropdown">
                 <Link to="/" onClick={closeMenu} className="mobile-menu-link">Home</Link>
                 <Link to="/shop" onClick={closeMenu} className="mobile-menu-link">Shop iPhones</Link>
+                <Link to="/blog" onClick={closeMenu} className="mobile-menu-link">Blog & News</Link> {/* <--- NEW: Blog Link */}
                 <Link to="/bnpl" onClick={closeMenu} className="mobile-menu-link" style={{ color: '#d97706' }}>Buy Now Pay Later</Link>
                 <Link to="/track" onClick={closeMenu} className="mobile-menu-link">Track Order</Link>
                 <div style={{ borderTop: '1px solid #eee', margin: '1rem 1rem 0 1rem' }}></div>
