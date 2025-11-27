@@ -68,6 +68,7 @@ export default function AdminLayout() {
   if (location.pathname.includes('products')) pageTitle = 'Product Management';
   if (location.pathname.includes('orders')) pageTitle = 'Order Management';
   if (location.pathname.includes('bnpl')) pageTitle = 'BNPL Debtors';
+  if (location.pathname.includes('sales')) pageTitle = 'Sales Analytics'; // <--- ADDED TITLE LOGIC
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
@@ -107,6 +108,7 @@ export default function AdminLayout() {
             <AdminLink to="/admin/dashboard" active={location.pathname === '/admin/dashboard'} label="Overview" icon="📊" collapsed={collapsed} />
             <AdminLink to="/admin/products" active={location.pathname === '/admin/products'} label="Products" icon="📱" collapsed={collapsed} />
             <AdminLink to="/admin/orders" active={location.pathname === '/admin/orders'} label="Orders" icon="📦" collapsed={collapsed} />
+            <AdminLink to="/admin/sales" active={location.pathname === '/admin/sales'} label="Sales" icon="📈" collapsed={collapsed} /> {/* <--- ADDED SALES LINK */}
             <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
         </nav>
 
