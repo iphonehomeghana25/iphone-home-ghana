@@ -29,12 +29,12 @@ export default function ShopHero() {
         {/* Right: Circle Shop */}
         <div className="shop-card" style={{ backgroundImage: `url(${circleImg})` }}>
             <div className="overlay">
-                <span className="badge">Circle Branch</span>
-                <h2>Circle Store</h2>
+                <span className="badge">Kokomlemle Branch</span>
+                <h2>Kokomlemle Store</h2>
                 
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
-                    <span>📍 Opposite Odor Rice, Circle Area</span>
+                    <span>📍Kokomlemle Dzorwulu Station, Near Odo Rice, Circle.</span>
                     <span>📞 053 585 5514 / 024 317 9760</span>
                 </div>
 
