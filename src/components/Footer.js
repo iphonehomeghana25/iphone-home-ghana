@@ -51,14 +51,14 @@ export default function Footer() {
             
             <div style={{ marginBottom: '1.5rem' }}>
                 <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Haatso Branch:</p>
-                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Near DH Electricals, Atomic Rd.</p>
-                <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 024 317 9760</p>
+                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Same building as Dosty Pharmacy, Atomic Rd.</p>
+                <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 024 317 9760 / 053 585 5514</p>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
                 <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Circle Branch:</p>
-                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Opposite Odor Rice.</p>
-                <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 053 585 5514</p>
+                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Opposite Odor Rice, Circle.</p>
+                <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 053 585 5514 / 024 317 9760</p>
             </div>
             
             {/* Embedded Google Map */}

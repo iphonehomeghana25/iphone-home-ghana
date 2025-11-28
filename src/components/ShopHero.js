@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import haatsoImg from '../assets/shop-haatso.jpg'; 
-import circleImg from '../assets/shop-circle.jpg';
+import haatsoImg from '../assets/shop-haatso.png'; 
+import circleImg from '../assets/shop-circle.png';
 
 export default function ShopHero() {
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ export default function ShopHero() {
                 
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
-                    <span>📍 Close to DH Electricals, Atomic Road</span>
-                    <span>📞 024 317 9760</span>
+                    <span>📍 Same building as Dosty Pharmacy, Atomic Road</span>
+                    <span>📞 024 317 9760 / 053 585 5514</span>
                 </div>
 
                 <button onClick={() => navigate('/shop')}>Shop Haatso Stock</button>
@@ -35,7 +35,7 @@ export default function ShopHero() {
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
                     <span>📍 Opposite Odor Rice, Circle Area</span>
-                    <span>📞 053 585 5514</span>
+                    <span>📞 053 585 5514 / 024 317 9760</span>
                 </div>
 
                 <button onClick={() => navigate('/shop')}>Shop Circle Stock</button>

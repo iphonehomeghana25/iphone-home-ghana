@@ -8,10 +8,13 @@ export default function AdminLayout() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024); 
+  
+  // --- IPAD FIX: Changed limit from 1024 to 768 ---
+  // This allows iPads (which are usually 768px-1024px) to access the dashboard
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768); 
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -40,6 +43,7 @@ export default function AdminLayout() {
     navigate('/staff-login');
   };
 
+  // --- MOBILE BLOCKER (Only blocks actual phones now) ---
   if (isMobile) {
     return (
         <div style={{ 
@@ -52,10 +56,10 @@ export default function AdminLayout() {
             textAlign: 'center',
             backgroundColor: '#f9fafb'
         }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>💻</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>Desktop Access Only</h2>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📱</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '0.5rem' }}>Mobile Access Restricted</h2>
             <p style={{ color: '#666', maxWidth: '300px' }}>
-                The iPhone Home Admin Panel is optimized for desktop and laptop computers to ensure data accuracy.
+                Please use a Tablet (iPad), Laptop, or Desktop to manage the store.
             </p>
             <Link to="/" style={{ marginTop: '2rem', textDecoration: 'underline', fontWeight: '600' }}>Back to Shop</Link>
         </div>
@@ -67,7 +71,8 @@ export default function AdminLayout() {
   if (location.pathname.includes('orders')) pageTitle = 'Order Management';
   if (location.pathname.includes('bnpl')) pageTitle = 'BNPL Debtors';
   if (location.pathname.includes('sales')) pageTitle = 'Sales Analytics';
-  if (location.pathname.includes('blog')) pageTitle = 'Blog Management'; // <--- NEW TITLE LOGIC
+  if (location.pathname.includes('blog')) pageTitle = 'Blog Management';
+  if (location.pathname.includes('reviews')) pageTitle = 'Customer Reviews'; // <--- NEW TITLE
 
   if (loading) return <div style={{ padding: '2rem' }}>Checking access...</div>;
 
@@ -103,7 +108,8 @@ export default function AdminLayout() {
             <AdminLink to="/admin/products" active={location.pathname === '/admin/products'} label="Products" icon="📱" collapsed={collapsed} />
             <AdminLink to="/admin/orders" active={location.pathname === '/admin/orders'} label="Orders" icon="📦" collapsed={collapsed} />
             <AdminLink to="/admin/sales" active={location.pathname === '/admin/sales'} label="Sales" icon="📈" collapsed={collapsed} />
-            <AdminLink to="/admin/blog" active={location.pathname === '/admin/blog'} label="Blog" icon="📝" collapsed={collapsed} /> {/* <--- NEW LINK */}
+            <AdminLink to="/admin/blog" active={location.pathname === '/admin/blog'} label="Blog" icon="📝" collapsed={collapsed} />
+            <AdminLink to="/admin/reviews" active={location.pathname === '/admin/reviews'} label="Reviews" icon="⭐" collapsed={collapsed} /> {/* <--- NEW LINK */}
             <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
         </nav>
 

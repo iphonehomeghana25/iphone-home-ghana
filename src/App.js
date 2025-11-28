@@ -36,6 +36,7 @@ import ManageOrders from './admin/ManageOrders';
 import ManageBNPL from './admin/ManageBNPL';
 import ManageSales from './admin/ManageSales';
 import ManageBlog from './admin/ManageBlog';     // <--- NEW: Admin Blog Manager
+import ManageReviews from './admin/ManageReviews'; // <--- NEW: Admin Reviews Manager
 
 // --- WhatsApp Floating Button Component ---
 const WhatsAppButton = () => (
@@ -136,6 +137,7 @@ function App() {
             <Route path="orders" element={<ManageOrders />} />
             <Route path="sales" element={<ManageSales />} />
             <Route path="blog" element={<ManageBlog />} /> {/* <--- NEW ROUTE */}
+            <Route path="reviews" element={<ManageReviews />} /> {/* <--- NEW ROUTE ADDED HERE */}
             <Route path="bnpl" element={<ManageBNPL />} />
         </Route>
 
