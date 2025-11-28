@@ -105,7 +105,7 @@ export default function CheckoutPage() {
                         <p style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '0.5rem' }}>Make payment to:</p>
                         <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '0.9rem', color: '#78350f' }}>
                             <li style={{ marginBottom: '0.5rem' }}>🏦 <strong>Bank:</strong> Cal Bank / Osu Branch - 1400004044152 (Success key Enterprise)</li>
-                            <li>📱 <strong>MTN Momo:</strong> 055 917 9484 (Richard Boateng / Success Key Enterprise)</li>
+                            <li>📱 <strong>MTN Momo:</strong> 053 883 9690 (iPhone Home Ghana)</li>
                         </ul>
                         <p style={{ fontSize: '0.8rem', marginTop: '0.8rem', fontStyle: 'italic' }}>
                             *Please use your Name as Reference. We will confirm payment before delivery.*

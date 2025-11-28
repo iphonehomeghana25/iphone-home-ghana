@@ -14,7 +14,7 @@ export default function ShopHero() {
         <div className="shop-card" style={{ backgroundImage: `url(${haatsoImg})` }}>
             <div className="overlay">
                 <span className="badge">Haatso Branch</span>
-                <h2>Haatso Showroom</h2>
+                <h2>Haatso Store</h2>
                 
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
