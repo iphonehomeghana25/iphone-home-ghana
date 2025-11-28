@@ -56,8 +56,8 @@ export default function Footer() {
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Circle Branch:</p>
-                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Opposite Odor Rice, Circle.</p>
+                <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Kokomlemle Branch:</p>
+                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Kokomlemle Dzorwulu Station, Near Odo Rice, Circle.</p>
                 <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 053 585 5514 / 024 317 9760</p>
             </div>
             
