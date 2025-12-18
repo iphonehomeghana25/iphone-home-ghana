@@ -1,0 +1,165 @@
+/* --- LUXURY LAYOUT --- */
+.raffle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.tier-selector {
+  margin-bottom: 2rem;
+  z-index: 10;
+  text-align: center;
+}
+.tier-selector label {
+  display: block;
+  color: #FFD700;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: 2px;
+}
+.tier-selector select {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  background: black;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  cursor: pointer;
+  outline: none;
+}
+
+/* --- WHEEL WRAPPER --- */
+.wheel-wrapper {
+  position: relative;
+  /* Fixed large size for TV */
+  width: 60vh; 
+  height: 60vh;
+  max-width: 90vw;
+  max-height: 90vw;
+  
+  border-radius: 50%;
+  background: radial-gradient(circle, #333, #000);
+  border: 10px solid #111;
+  box-shadow: 
+    0 0 0 2px #FFD700, 
+    0 0 50px rgba(255, 215, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+/* SVG Container fits the wrapper exactly */
+.svg-wheel-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden; /* Clips the SVG to circle */
+}
+
+/* --- POINTER --- */
+.pointer-arrow {
+  position: absolute;
+  top: -25px; /* Stick out the top */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 60px;
+  /* Red Pointer Shape */
+  background-color: #ef4444; 
+  clip-path: polygon(100% 0, 100% 60%, 50% 100%, 0 60%, 0 0);
+  z-index: 20;
+  filter: drop-shadow(0 4px 2px rgba(0,0,0,0.5));
+}
+
+/* --- CENTER CAP --- */
+.wheel-center-cap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20%;
+  height: 20%;
+  background: #000;
+  border-radius: 50%;
+  border: 4px solid #FFD700;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+
+.center-inner {
+    color: #FFD700;
+    font-weight: 900;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+/* --- BUTTONS --- */
+.big-spin-btn-luxury {
+  background: linear-gradient(to bottom, #FFD700, #B8860B);
+  color: black;
+  font-size: 1.5rem;
+  font-weight: 900;
+  padding: 1rem 4rem;
+  border: 3px solid #fff;
+  border-radius: 100px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.big-spin-btn-luxury:active {
+  transform: scale(0.98);
+}
+.big-spin-btn-luxury:disabled {
+  background: #333;
+  color: #666;
+  border-color: #555;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* --- MODAL --- */
+.winner-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.winner-card-luxury {
+  background: black;
+  padding: 3rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 4px solid #FFD700;
+  box-shadow: 0 0 80px rgba(255, 215, 0, 0.4);
+  animation: popUp 0.5s;
+}
+
+.winner-title { color: white; margin: 0; font-size: 1.5rem; letter-spacing: 2px; }
+.winner-icon-large { font-size: 6rem; margin: 1.5rem 0; animation: shake 1s infinite; }
+.winner-name-large { font-size: 2.5rem; font-weight: 900; color: #FFD700; margin-bottom: 2rem; text-transform: uppercase; }
+.jackpot-alert { background: #ef4444; color: white; font-weight: bold; padding: 0.5rem; margin-bottom: 1rem; animation: blink 1s infinite; }
+
+.next-spin-btn-luxury {
+  background: transparent;
+  color: white;
+  border: 1px solid #555;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.next-spin-btn-luxury:hover { border-color: #FFD700; color: #FFD700; }
+
+@keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+@keyframes blink { 50% { opacity: 0.5; } }

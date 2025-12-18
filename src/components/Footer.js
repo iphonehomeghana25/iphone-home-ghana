@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../assets/logo1.png'; // <--- IMPORTED LOGO HERE
+import logo from '../assets/logo1.png';
 
 export default function Footer() {
   return (
@@ -35,6 +35,14 @@ export default function Footer() {
               <li><Link to="/shop" className="footer-link">Brand New iPhones</Link></li>
               <li><Link to="/shop" className="footer-link">UK Used iPhones</Link></li>
               <li><Link to="/bnpl" className="footer-link">Buy Now Pay Later</Link></li>
+              
+              {/* --- NEW RAFFLE LINKS --- */}
+              <li style={{ marginTop: '0.5rem' }}>
+                 <Link to="/raffle/haatso" className="footer-link" style={{ color: '#fbbf24' }}>🎄 Raffle Promo (Haatso)</Link>
+              </li>
+              <li>
+                 <Link to="/raffle/circle" className="footer-link" style={{ color: '#fbbf24' }}>🎄 Raffle Promo (Circle)</Link>
+              </li>
             
               {/* Staff Portal Link */}
               <li style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #333' }}>
@@ -79,11 +87,11 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div style={{ borderTop: '1px solid #222', marginTop: '5rem', paddingTop: '2rem', textAlign: 'center', color: '#52525b', fontSize: '0.85rem' }}>
-          <p>&copy; {new Date().getFullYear()} iPhone Home Ghana. All Rights Reserved.</p>
+          <p>© {new Date().getFullYear()} iPhone Home Ghana. All Rights Reserved.</p>
           
-          {/* --- YOUR DEVELOPER CREDIT --- */}
+          {/* --- YOUR DEVELOPER CREDIT (FIXED) --- */}
           <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#444' }}>
-            Developed by Suleman / Mistah kweku &#123;Eazi Tech Llc 020 281 3298 / 054 901 0934&#125;
+            Developed by Suleman / Mistah kweku (Eazi Tech Llc 020 281 3298 / 054 901 0934)
           </p>
         </div>
       </div>

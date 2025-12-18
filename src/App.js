@@ -27,6 +27,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmation from './pages/OrderConfirmation';
 import BlogPage from './pages/BlogPage';         // <--- NEW: Blog List Page
 import BlogPostPage from './pages/BlogPostPage'; // <--- NEW: Single Blog Post Page
+import RafflePage from './pages/RafflePage';     // <--- NEW: Raffle Page Added
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
@@ -37,6 +38,7 @@ import ManageBNPL from './admin/ManageBNPL';
 import ManageSales from './admin/ManageSales';
 import ManageBlog from './admin/ManageBlog';     // <--- NEW: Admin Blog Manager
 import ManageReviews from './admin/ManageReviews'; // <--- NEW: Admin Reviews Manager
+import ManageRaffle from './admin/ManageRaffle'; // <--- NEW: Admin Raffle Manager (Adding this early for next step)
 
 // --- WhatsApp Floating Button Component ---
 const WhatsAppButton = () => (
@@ -86,7 +88,7 @@ function App() {
     <div className="app-wrapper">
       <Routes>
         
-        {/* --- PUBLIC ROUTES --- */}
+        {/* --- PUBLIC ROUTES (Has Header & Footer) --- */}
         <Route element={<PublicLayout />}>
             <Route path="/" element={
               <main>
@@ -122,13 +124,17 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             
-            <Route path="/blog" element={<BlogPage />} /> {/* <--- NEW ROUTE */}
-            <Route path="/blog/:slug" element={<BlogPostPage />} /> {/* <--- NEW ROUTE */}
+            <Route path="/blog" element={<BlogPage />} /> 
+            <Route path="/blog/:slug" element={<BlogPostPage />} /> 
 
             <Route path="/track" element={<TrackOrderPage />} />
             <Route path="/bnpl" element={<BNPLPage />} />
             <Route path="/staff-login" element={<StaffLogin />} />
         </Route>
+
+        {/* --- RAFFLE ROUTES (TV MODE: No Header/Footer) --- */}
+        <Route path="/raffle/haatso" element={<RafflePage location="Haatso" />} />
+        <Route path="/raffle/circle" element={<RafflePage location="Circle" />} />
 
         {/* --- ADMIN ROUTES --- */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -136,9 +142,10 @@ function App() {
             <Route path="products" element={<ManageProducts />} />
             <Route path="orders" element={<ManageOrders />} />
             <Route path="sales" element={<ManageSales />} />
-            <Route path="blog" element={<ManageBlog />} /> {/* <--- NEW ROUTE */}
-            <Route path="reviews" element={<ManageReviews />} /> {/* <--- NEW ROUTE ADDED HERE */}
+            <Route path="blog" element={<ManageBlog />} /> 
+            <Route path="reviews" element={<ManageReviews />} />
             <Route path="bnpl" element={<ManageBNPL />} />
+            <Route path="raffle" element={<ManageRaffle />} /> 
         </Route>
 
       </Routes>
