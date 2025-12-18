@@ -29,9 +29,29 @@ export default function ManageRaffle() {
     }
   }
 
+  // --- DELETE FUNCTION ---
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this record? This cannot be undone.")) {
+      try {
+        const { error } = await supabase
+          .from('raffle_wins')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        // Update UI instantly
+        setWins(wins.filter(win => win.id !== id));
+        
+      } catch (error) {
+        alert("Error deleting: " + error.message);
+      }
+    }
+  };
+
   // Simple stats calculation
   const totalSpins = wins.length;
-  const actualWinners = wins.filter(w => !w.prize_name.includes("Thank You")).length;
+  const actualWinners = wins.filter(w => !w.prize_name.includes("Thank You") && !w.prize_name.includes("TRY AGAIN")).length;
 
   return (
     <div>
@@ -62,6 +82,7 @@ export default function ManageRaffle() {
                             <th style={thStyle}>Branch</th>
                             <th style={thStyle}>Customer Tier</th>
                             <th style={thStyle}>Prize Won</th>
+                            <th style={thStyle}>Action</th> {/* NEW COLUMN */}
                         </tr>
                     </thead>
                     <tbody>
@@ -91,11 +112,29 @@ export default function ManageRaffle() {
                                         {win.prize_name}
                                     </span>
                                 </td>
+                                {/* DELETE BUTTON CELL */}
+                                <td style={tdStyle}>
+                                    <button 
+                                        onClick={() => handleDelete(win.id)}
+                                        style={{
+                                            backgroundColor: '#fee2e2',
+                                            color: '#dc2626',
+                                            border: 'none',
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '6px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600',
+                                            fontSize: '0.8rem'
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                         {wins.length === 0 && (
                             <tr>
-                                <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
                                     No spins recorded yet.
                                 </td>
                             </tr>
@@ -111,7 +150,7 @@ export default function ManageRaffle() {
 
 // Helper to color-code prizes
 function getPrizeColor(prizeName) {
-    if (prizeName.includes("Thank You")) return '#ef4444'; // Red for loss
+    if (prizeName.includes("Thank You") || prizeName.includes("TRY AGAIN")) return '#ef4444'; // Red for loss
     if (prizeName.includes("CHICKEN") || prizeName.includes("RICE")) return '#d97706'; // Gold/Orange for Big Wins
     return '#16a34a'; // Green for normal wins
 }
