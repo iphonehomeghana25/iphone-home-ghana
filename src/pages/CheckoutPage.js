@@ -104,11 +104,11 @@ export default function CheckoutPage() {
                     <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px' }}>
                         <p style={{ fontWeight: 'bold', color: '#92400e', marginBottom: '0.5rem' }}>Make payment to:</p>
                         <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: '0.9rem', color: '#78350f' }}>
-                            <li style={{ marginBottom: '0.5rem' }}>🏦 <strong>Bank:</strong> Cal Bank / Osu Branch - 1400004044152 (Success key Enterprise)</li>
+                            
                             <li>📱 <strong>MTN Momo:</strong> 053 883 9690 (iPhone Home Ghana)</li>
                         </ul>
                         <p style={{ fontSize: '0.8rem', marginTop: '0.8rem', fontStyle: 'italic' }}>
-                            *Please use your Name as Reference. We will confirm payment before delivery.*
+                            *PLEASE NOTE* this is the only iPhone Home Ghana's MOMO line* Use your Name as Reference. We will confirm payment before delivery.*
                         </p>
                     </div>
                 )}

@@ -8,25 +8,25 @@ const TIERS = {
     label: "iPhone XR - 11 Pro Max",
     dbValue: "Tier 1",
     prizes: [
-      { name: "CHARGER", icon: "🔌", weight: 100 },
-      { name: "CABLE", icon: "➰", weight: 80 },
-      { name: "SCREEN G.", icon: "🛡️", weight: 100 },
+      { name: "COMPLETE CHARGER", icon: "🔌", weight: 100 },
+      { name: "CABLE ONLY", icon: "➰", weight: 80 },
+      { name: "CMPT PROTOECTOR & CASE", icon: "🛡️", weight: 100 },
       { name: "CASE ONLY", icon: "📱", weight: 80 },
-      { name: "PROT. ONLY", icon: "💎", weight: 80 },
-      { name: "TRY AGAIN", icon: "😢", weight: 15 }
+      { name: "PROTECTOR ONLY", icon: "💎", weight: 80 },
+      { name: "THANK YOU", icon: "😢", weight: 15 }
     ]
   },
   tier2: {
     label: "iPhone 12 - 14 Pro Max",
     dbValue: "Tier 2",
     prizes: [
-      { name: "CHARGER", icon: "🔌", weight: 100 },
-      { name: "CABLE", icon: "➰", weight: 90 },
+      { name: "COMPLETE CHARGER", icon: "🔌", weight: 100 },
+      { name: "CABLE ONLY", icon: "➰", weight: 90 },
       { name: "AIRPODS", icon: "🎧", weight: 12 }, 
-      { name: "PROT+CASE", icon: "🛡️", weight: 100 },
+      { name: "PROTECOR+CASE", icon: "🛡️", weight: 100 },
       { name: "T-SHIRT", icon: "👕", weight: 40 },
-      { name: "10% DISC.", icon: "🎫", weight: 12 },
-      { name: "TRY AGAIN", icon: "😢", weight: 10 }
+      { name: "10% DISC. NEXT YEAR", icon: "🎫", weight: 12 },
+      { name: "THANK YOU", icon: "😢", weight: 10 }
     ]
   },
   tier3: {
@@ -35,13 +35,13 @@ const TIERS = {
     prizes: [
       { name: "AIRPODS", icon: "🎧", weight: 12 },    
       { name: "RICE & OIL", icon: "🍚", weight: 10 }, 
-      { name: "CHARGER", icon: "🔌", weight: 100 },
+      { name: "COMPLETE CHARGER", icon: "🔌", weight: 100 },
       { name: "T-SHIRT", icon: "👕", weight: 50 },
       { name: "NOKIA 105", icon: "📞", weight: 12 },   
-      { name: "15 CHARGER", icon: "🔋", weight: 100 },
-      { name: "2026 DISC.", icon: "🎟️", weight: 12 },
+      { name: "15 SERIES CHARGER CMPT", icon: "🔋", weight: 100 },
+      { name: "10% 2026 DISC.", icon: "🎟️", weight: 12 },
       { name: "CHICKEN", icon: "🐔", weight: 10 },    
-      { name: "TRY AGAIN", icon: "😢", weight: 10 }
+      { name: "THANK YOU", icon: "😢", weight: 10 }
     ]
   }
 };
