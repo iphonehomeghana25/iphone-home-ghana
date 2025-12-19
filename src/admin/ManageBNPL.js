@@ -5,16 +5,22 @@ export default function ManageBNPL() {
   const [debtors, setDebtors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [uploading, setUploading] = useState(false);
   
-  // --- NEW: Editing State ---
+  // separate loading states for images
+  const [uploadingCustomer, setUploadingCustomer] = useState(false);
+  const [uploadingGuarantor, setUploadingGuarantor] = useState(false);
+  
   const [editingId, setEditingId] = useState(null);
 
   // Form State
   const [formData, setFormData] = useState({
+    // Customer Details
     customer_name: '', phone_number: '', ghana_card_number: '', 
     item_taken: '', total_debt: '', amount_paid: '0', is_fully_paid: false,
-    start_date: '', end_date: '', customer_image_url: ''
+    start_date: '', end_date: '', customer_image_url: '',
+    
+    // Guarantor Details
+    guarantor_name: '', guarantor_phone: '', guarantor_ghana_card: '', guarantor_image_url: ''
   });
 
   useEffect(() => {
@@ -42,9 +48,12 @@ export default function ManageBNPL() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = async (e) => {
+  // Generic Image Upload Handler
+  const handleImageUpload = async (e, type) => {
     try {
-      setUploading(true);
+      if (type === 'customer') setUploadingCustomer(true);
+      else setUploadingGuarantor(true);
+
       const file = e.target.files[0];
       if (!file) return;
       
@@ -52,20 +61,27 @@ export default function ManageBNPL() {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
       
+      // Upload to 'customer-images' bucket
       const { error: uploadError } = await supabase.storage.from('customer-images').upload(filePath, file);
       if (uploadError) throw uploadError;
       
       const { data } = supabase.storage.from('customer-images').getPublicUrl(filePath);
-      setFormData(prev => ({ ...prev, customer_image_url: data.publicUrl }));
-      alert('Photo uploaded successfully!');
+      
+      if (type === 'customer') {
+          setFormData(prev => ({ ...prev, customer_image_url: data.publicUrl }));
+      } else {
+          setFormData(prev => ({ ...prev, guarantor_image_url: data.publicUrl }));
+      }
+      
+      alert(`${type === 'customer' ? 'Customer' : 'Guarantor'} photo uploaded!`);
     } catch (error) { 
         alert('Error uploading photo: ' + error.message); 
     } finally { 
-        setUploading(false); 
+        setUploadingCustomer(false);
+        setUploadingGuarantor(false);
     }
   };
 
-  // --- NEW: Edit Handler ---
   const handleEdit = (debtor) => {
       setEditingId(debtor.id);
       setFormData({
@@ -77,8 +93,14 @@ export default function ManageBNPL() {
           amount_paid: debtor.amount_paid,
           is_fully_paid: debtor.is_fully_paid,
           start_date: debtor.start_date || '',
-          end_date: debtor.end_date || '', // Handles null end dates
-          customer_image_url: debtor.customer_image_url || ''
+          end_date: debtor.end_date || '',
+          customer_image_url: debtor.customer_image_url || '',
+          
+          // Populate Guarantor fields
+          guarantor_name: debtor.guarantor_name || '',
+          guarantor_phone: debtor.guarantor_phone || '',
+          guarantor_ghana_card: debtor.guarantor_ghana_card || '',
+          guarantor_image_url: debtor.guarantor_image_url || ''
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -88,7 +110,8 @@ export default function ManageBNPL() {
       setFormData({ 
           customer_name: '', phone_number: '', ghana_card_number: '', 
           item_taken: '', total_debt: '', amount_paid: '0', is_fully_paid: false,
-          start_date: '', end_date: '', customer_image_url: ''
+          start_date: '', end_date: '', customer_image_url: '',
+          guarantor_name: '', guarantor_phone: '', guarantor_ghana_card: '', guarantor_image_url: ''
       });
   };
 
@@ -97,7 +120,6 @@ export default function ManageBNPL() {
     try {
       const initialRemaining = parseFloat(formData.total_debt) - parseFloat(formData.amount_paid);
       
-      // Clean up empty date strings to NULL so database doesn't complain
       const payload = {
         ...formData,
         total_debt: parseFloat(formData.total_debt),
@@ -121,7 +143,7 @@ export default function ManageBNPL() {
           alert('BNPL Customer Registered!');
       }
       
-      handleCancelEdit(); // Reset form
+      handleCancelEdit(); 
       fetchDebtors();
     } catch (error) { alert(error.message); }
   };
@@ -178,31 +200,55 @@ export default function ManageBNPL() {
              {editingId && <button onClick={handleCancelEdit} style={{ padding: '0.5rem', fontSize: '0.8rem', backgroundColor: '#f3f4f6', color: 'black', border:'none', borderRadius:'4px', cursor:'pointer' }}>Cancel Edit</button>}
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
-            <input required name="customer_name" placeholder="Customer Name" value={formData.customer_name} onChange={handleChange} style={inputStyle} />
-            <input required name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} style={inputStyle} />
-            <input required name="ghana_card_number" placeholder="Ghana Card ID" value={formData.ghana_card_number} onChange={handleChange} style={inputStyle} />
-            
-            <input required name="item_taken" placeholder="Item Taken (e.g. iPhone 14 Pro)" value={formData.item_taken} onChange={handleChange} style={inputStyle} />
-            <input required type="number" name="total_debt" placeholder="Total Debt (GHS)" value={formData.total_debt} onChange={handleChange} style={inputStyle} />
-            <input required type="number" name="amount_paid" placeholder="Initial Deposit (GHS)" value={formData.amount_paid} onChange={handleChange} style={inputStyle} />
-            
-            <div>
-                <label style={labelStyle}>Start Date</label>
-                <input required type="date" name="start_date" value={formData.start_date} onChange={handleChange} style={inputStyle} />
+        <form onSubmit={handleSubmit}>
+            {/* SECTION 1: CUSTOMER INFO */}
+            <h4 style={{ margin: '0 0 1rem 0', color: '#555', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Customer Details</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                <input required name="customer_name" placeholder="Customer Name" value={formData.customer_name} onChange={handleChange} style={inputStyle} />
+                <input required name="phone_number" placeholder="Phone Number" value={formData.phone_number} onChange={handleChange} style={inputStyle} />
+                <input required name="ghana_card_number" placeholder="Ghana Card ID" value={formData.ghana_card_number} onChange={handleChange} style={inputStyle} />
+                
+                <div>
+                    <label style={labelStyle}>Customer Photo</label>
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'customer')} style={inputStyle} />
+                    {uploadingCustomer && <span style={{fontSize:'0.8rem', color:'blue'}}>Uploading...</span>}
+                    {formData.customer_image_url && <span style={{fontSize:'0.8rem', color:'green'}}>Photo Ready ✅</span>}
+                </div>
             </div>
-            <div>
-                <label style={labelStyle}>End Date (Optional)</label>
-                <input type="date" name="end_date" value={formData.end_date} onChange={handleChange} style={inputStyle} />
+
+            {/* SECTION 2: ITEM & DEBT */}
+            <h4 style={{ margin: '0 0 1rem 0', color: '#555', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Debt Details</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                <input required name="item_taken" placeholder="Item Taken (e.g. iPhone 14 Pro)" value={formData.item_taken} onChange={handleChange} style={inputStyle} />
+                <input required type="number" name="total_debt" placeholder="Total Debt (GHS)" value={formData.total_debt} onChange={handleChange} style={inputStyle} />
+                <input required type="number" name="amount_paid" placeholder="Initial Deposit (GHS)" value={formData.amount_paid} onChange={handleChange} style={inputStyle} />
+                
+                <div>
+                    <label style={labelStyle}>Start Date</label>
+                    <input required type="date" name="start_date" value={formData.start_date} onChange={handleChange} style={inputStyle} />
+                </div>
+                <div>
+                    <label style={labelStyle}>End Date (Optional)</label>
+                    <input type="date" name="end_date" value={formData.end_date} onChange={handleChange} style={inputStyle} />
+                </div>
             </div>
-            <div>
-                <label style={labelStyle}>Customer Photo</label>
-                <input type="file" accept="image/*" capture="user" onChange={handleImageUpload} style={inputStyle} />
-                {uploading && <span style={{fontSize:'0.8rem', color:'blue'}}>Uploading...</span>}
-                {formData.customer_image_url && <span style={{fontSize:'0.8rem', color:'green'}}>Photo Ready ✅</span>}
+
+            {/* SECTION 3: GUARANTOR INFO (NEW) */}
+            <h4 style={{ margin: '0 0 1rem 0', color: '#555', borderBottom: '1px solid #eee', paddingBottom: '0.5rem' }}>Guarantor Details</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                <input name="guarantor_name" placeholder="Guarantor Name" value={formData.guarantor_name} onChange={handleChange} style={inputStyle} />
+                <input name="guarantor_phone" placeholder="Guarantor Phone" value={formData.guarantor_phone} onChange={handleChange} style={inputStyle} />
+                <input name="guarantor_ghana_card" placeholder="Guarantor Ghana Card" value={formData.guarantor_ghana_card} onChange={handleChange} style={inputStyle} />
+                
+                <div>
+                    <label style={labelStyle}>Guarantor Photo</label>
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'guarantor')} style={inputStyle} />
+                    {uploadingGuarantor && <span style={{fontSize:'0.8rem', color:'blue'}}>Uploading...</span>}
+                    {formData.guarantor_image_url && <span style={{fontSize:'0.8rem', color:'green'}}>Photo Ready ✅</span>}
+                </div>
             </div>
             
-            <button type="submit" style={{ gridColumn: '1 / -1', backgroundColor: editingId ? '#d97706' : 'black', color: 'white', padding: '1rem', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', border: 'none' }}>
+            <button type="submit" style={{ width: '100%', backgroundColor: editingId ? '#d97706' : 'black', color: 'white', padding: '1rem', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', border: 'none' }}>
                 {editingId ? 'Update Record' : 'Save New BNPL Record'}
             </button>
         </form>
@@ -220,10 +266,11 @@ export default function ManageBNPL() {
       <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #eaecf0', overflow: 'hidden' }}>
         {loading ? <p style={{padding: '2rem'}}>Loading debtors...</p> : (
             <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1200px' }}>
                 <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #eaecf0' }}>
                     <tr>
                         <th style={thStyle}>Customer</th>
+                        <th style={thStyle}>Guarantor</th>
                         <th style={thStyle}>Item & Dates</th>
                         <th style={thStyle}>Total Debt</th>
                         <th style={thStyle}>Paid So Far</th>
@@ -252,6 +299,19 @@ export default function ManageBNPL() {
                                         </div>
                                     </div>
                                 </td>
+                                {/* GUARANTOR COLUMN (UPDATED with Ghana Card) */}
+                                <td style={tdStyle}>
+                                    {d.guarantor_name ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            {d.guarantor_image_url && <img src={d.guarantor_image_url} alt="G" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover' }} />}
+                                            <div>
+                                                <div style={{fontWeight: '600', fontSize: '0.9rem'}}>{d.guarantor_name}</div>
+                                                <div style={{fontSize: '0.75rem', color: '#666'}}>{d.guarantor_phone}</div>
+                                                <div style={{fontSize: '0.7rem', color: '#999'}}>{d.guarantor_ghana_card}</div>
+                                            </div>
+                                        </div>
+                                    ) : <span style={{color: '#999', fontSize: '0.8rem'}}>No Info</span>}
+                                </td>
                                 <td style={tdStyle}>
                                     <div>{d.item_taken}</div>
                                     <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
@@ -267,10 +327,7 @@ export default function ManageBNPL() {
                                 </td>
                                 <td style={tdStyle}>
                                     <span style={{ 
-                                        padding: '4px 10px', 
-                                        borderRadius: '100px', 
-                                        fontSize: '0.75rem',
-                                        fontWeight: '700',
+                                        padding: '4px 10px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: '700',
                                         backgroundColor: isPaidOff ? '#dcfce7' : '#fffbeb',
                                         color: isPaidOff ? '#027a48' : '#b54708'
                                     }}>
@@ -287,14 +344,12 @@ export default function ManageBNPL() {
                                                 Pay
                                             </button>
                                         )}
-                                        {/* Edit Button */}
                                         <button 
                                             onClick={() => handleEdit(d)}
                                             style={{ padding: '0.5rem 0.8rem', backgroundColor: '#f3f4f6', border: '1px solid #ccc', borderRadius: '6px', cursor: 'pointer', color: 'black', fontWeight: '600', fontSize: '0.8rem' }}
                                         >
                                             Edit
                                         </button>
-                                        {/* Delete Button */}
                                         <button 
                                             onClick={() => handleDelete(d.id)}
                                             style={{ padding: '0.5rem 0.8rem', backgroundColor: '#fee2e2', border: 'none', borderRadius: '6px', cursor: 'pointer', color: '#dc2626', fontWeight: '600', fontSize: '0.8rem' }}
