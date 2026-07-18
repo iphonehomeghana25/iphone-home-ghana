@@ -18,7 +18,7 @@ export default function ShopHero() {
                 
                 {/* NEW: Contact Info Block */}
                 <div className="hero-contact-info">
-                    <span>📍 Same building as Dosty Pharmacy, Atomic Road</span>
+                    <span>📍 Hong Kong Police Station, </span>
                     <span>📞 024 317 9760 / 053 585 5514</span>
                 </div>
 
