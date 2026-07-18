@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabaseClient';
 
 export default function ManageProducts() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -22,7 +21,7 @@ export default function ManageProducts() {
       const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       setProducts(data || []);
-    } catch (error) { console.error(error); } finally { setLoading(false); }
+    } catch (error) { console.error(error); }
   }
 
   const handleChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); };
