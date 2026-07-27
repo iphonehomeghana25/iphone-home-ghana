@@ -46,7 +46,7 @@ export default function BNPLPage() {
 
         {/* Pricing Table */}
         <div style={{ marginBottom: '4rem' }}>
-          <h2 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '2rem', fontWeight: '800' }}>Price List & Installments</h2>
+          <h2 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '2rem', fontWeight: '800' }}>New Price List & Installments Update 2026</h2>
           <p style={{ textAlign: 'center', color: '#667085', marginBottom: '2rem' }}>
             Payment duration: <strong>12 Weeks</strong> or <strong>3 Months</strong>. Missed payments may result in device locking.
           </p>
