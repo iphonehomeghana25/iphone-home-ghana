@@ -23,7 +23,7 @@ export default function Footer() {
             <div style={{ display: 'flex', gap: '1rem' }}>
               <SocialLink href="https://instagram.com/iphone_home_ghana" icon={<InstagramIcon />} />
               <SocialLink href="https://facebook.com/p/iphone_home_ghana-100063818418939" icon={<FacebookIcon />} />
-              <SocialLink href="https://tiktok.com/@iphonehomeghana1" icon={<TikTokIcon />} />
+              <SocialLink href="https://www.tiktok.com/@apple_home_ghana" icon={<TikTokIcon />} />
             </div>
           </div>
 
@@ -58,8 +58,8 @@ export default function Footer() {
             <h3 className="footer-heading">Visit Us</h3>
             
             <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Haatso Branch:</p>
-                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Same building as Dosty Pharmacy, Atomic Rd.</p>
+                <p style={{ color: 'white', fontWeight: '700', marginBottom: '0.25rem' }}>Kwashieman Branch:</p>
+                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>Hong Kong Police Station.</p>
                 <p style={{ color: '#FFD700', fontSize: '0.9rem', marginTop: '0.25rem' }}>📞 024 317 9760 / 053 585 5514</p>
             </div>
 
