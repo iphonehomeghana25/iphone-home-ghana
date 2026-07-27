@@ -177,7 +177,7 @@ export default function BNPLPage() {
             </p>
             <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <div>
-                    <p style={{ fontWeight: 'bold', color: '#FFD700' }}>Haatso Branch</p>
+                    <p style={{ fontWeight: 'bold', color: '#FFD700' }}>Kwashieman Branch</p>
                     <p>024 317 9760</p>
                 </div>
                 <div>
