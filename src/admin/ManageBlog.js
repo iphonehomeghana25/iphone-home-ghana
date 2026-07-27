@@ -60,7 +60,8 @@ export default function ManageBlog() {
       .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
       .replace(/(^-|-$)+/g, '');   // Remove leading/trailing hyphens
 
-    const postData = { ...formData, slug };
+    // Force is_published to true so it ranks and shows up immediately
+    const postData = { ...formData, slug, is_published: true };
 
     try {
       if (editingId) {
@@ -94,7 +95,7 @@ export default function ManageBlog() {
       <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid #eaecf0', marginBottom: '3rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
              <h3 style={{ fontWeight: '700', margin: 0 }}>{editingId ? 'Edit Post' : 'Write New Post'}</h3>
-             {editingId && <button onClick={handleCancel} style={{ padding: '0.5rem', fontSize: '0.8rem', backgroundColor: '#f3f4f6', color: 'black' }}>Cancel</button>}
+             {editingId && <button onClick={handleCancel} style={{ padding: '0.5rem', fontSize: '0.8rem', backgroundColor: '#f3f4f6', color: 'black', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>}
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
@@ -103,7 +104,7 @@ export default function ManageBlog() {
                 <input name="title" value={formData.title} onChange={handleChange} style={inputStyle} placeholder="e.g. 5 Reasons to buy an iPhone 14" required />
             </div>
             <div>
-                <label style={labelStyle}>Short Summary (Excerpt)</label>
+                <label style={labelStyle}>Short Summary (Excerpt) - Used for SEO</label>
                 <input name="excerpt" value={formData.excerpt} onChange={handleChange} style={inputStyle} placeholder="A short preview text..." required />
             </div>
             <div>
@@ -117,7 +118,7 @@ export default function ManageBlog() {
                     required 
                 />
             </div>
-            <button type="submit" style={{ backgroundColor: editingId ? '#d97706' : 'black', color: 'white', padding: '1rem', width: '100%' }}>
+            <button type="submit" style={{ backgroundColor: editingId ? '#d97706' : 'black', color: 'white', padding: '1rem', width: '100%', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
                 {editingId ? 'Update Post' : 'Publish Post'}
             </button>
         </form>
@@ -142,8 +143,8 @@ export default function ManageBlog() {
                             <div style={{ fontSize: '0.8rem', color: '#666' }}>/{post.slug}</div>
                         </td>
                         <td style={tdStyle}>
-                            <button onClick={() => handleEdit(post)} style={{ marginRight: '10px', padding: '0.4rem 0.8rem', backgroundColor: '#f3f4f6', color: 'black', border: '1px solid #ccc', borderRadius: '4px' }}>Edit</button>
-                            <button onClick={() => handleDelete(post.id)} style={{ padding: '0.4rem 0.8rem', backgroundColor: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px' }}>Delete</button>
+                            <button onClick={() => handleEdit(post)} style={{ marginRight: '10px', padding: '0.4rem 0.8rem', backgroundColor: '#f3f4f6', color: 'black', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Edit</button>
+                            <button onClick={() => handleDelete(post.id)} style={{ padding: '0.4rem 0.8rem', backgroundColor: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Delete</button>
                         </td>
                     </tr>
                 ))}

@@ -22,8 +22,21 @@ export default function BlogPostPage() {
       if (error) throw error;
       setPost(data);
       
-      // Update Tab Title for SEO
-      if (data) document.title = `${data.title} - iPhone Home Ghana`;
+      // --- SEO Updates for Google ---
+      if (data) {
+        // 1. Update Tab Title
+        document.title = `${data.title} - iPhone Home Ghana`;
+        
+        // 2. Dynamically update the meta description
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+            metaDescription = document.createElement('meta');
+            metaDescription.name = "description";
+            document.head.appendChild(metaDescription);
+        }
+        // Use the excerpt as the Google search description
+        metaDescription.content = data.excerpt || "Read the latest Apple news and iPhone tips from iPhone Home Ghana."; 
+      }
 
     } catch (error) {
       console.error(error);
@@ -36,7 +49,7 @@ export default function BlogPostPage() {
   if (!post) return <div className="container py-section" style={{textAlign:'center'}}>Article not found.</div>;
 
   return (
-    <div className="container py-section" style={{ maxWidth: '800px' }}>
+    <div className="container py-section" style={{ maxWidth: '800px', margin: '0 auto' }}>
       <Link to="/blog" style={{ display: 'inline-block', marginBottom: '2rem', color: '#666', textDecoration: 'none', fontWeight: '600' }}>
         &larr; Back to Blog
       </Link>
@@ -57,7 +70,18 @@ export default function BlogPostPage() {
       <div style={{ marginTop: '5rem', paddingTop: '3rem', borderTop: '1px solid #eaecf0', textAlign: 'center' }}>
         <h3>Ready to upgrade your phone?</h3>
         <Link to="/shop">
-            <button style={{ marginTop: '1rem' }}>Shop Now</button>
+            <button style={{ 
+              marginTop: '1rem', 
+              padding: '0.8rem 2rem', 
+              backgroundColor: 'black', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px', 
+              fontWeight: '600', 
+              cursor: 'pointer' 
+            }}>
+              Shop Now
+            </button>
         </Link>
       </div>
     </div>
