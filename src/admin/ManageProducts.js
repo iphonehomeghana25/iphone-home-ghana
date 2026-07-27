@@ -31,14 +31,37 @@ export default function ManageProducts() {
       setUploading(true);
       const file = e.target.files[0];
       if (!file) return;
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('product-images').upload(filePath, file);
-      if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
-      setFormData({ ...formData, image_url: data.publicUrl });
-    } catch (error) { alert('Error: ' + error.message); } finally { setUploading(false); }
+
+      // Prepare the data for Cloudinary
+      const cloudFormData = new FormData();
+      cloudFormData.append('file', file);
+      cloudFormData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_PRODUCT_PRESET); 
+
+      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+
+      // Send directly to Cloudinary via REST API
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: cloudFormData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Inject auto-optimization parameters into the URL
+        const optimizedUrl = data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
+        
+        // Save the optimized URL to Supabase
+        setFormData({ ...formData, image_url: optimizedUrl });
+      } else {
+        throw new Error(data.error?.message || 'Failed to upload image to Cloudinary');
+      }
+
+    } catch (error) { 
+      alert('Error uploading image: ' + error.message); 
+    } finally { 
+      setUploading(false); 
+    }
   };
 
   // --- Handle Edit Click ---
@@ -171,7 +194,7 @@ export default function ManageProducts() {
         </form>
       </div>
 
-      {/* --- SEARCH BAR SECTION (Added Here) --- */}
+      {/* --- SEARCH BAR SECTION --- */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h3 style={{ fontWeight: '700', margin: 0 }}>Inventory ({filteredProducts.length})</h3>
         <input 

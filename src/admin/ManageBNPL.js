@@ -48,7 +48,7 @@ export default function ManageBNPL() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Generic Image Upload Handler
+  // Generic Image Upload Handler using Cloudinary
   const handleImageUpload = async (e, type) => {
     try {
       if (type === 'customer') setUploadingCustomer(true);
@@ -57,23 +57,36 @@ export default function ManageBNPL() {
       const file = e.target.files[0];
       if (!file) return;
       
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-      
-      // Upload to 'customer-images' bucket
-      const { error: uploadError } = await supabase.storage.from('customer-images').upload(filePath, file);
-      if (uploadError) throw uploadError;
-      
-      const { data } = supabase.storage.from('customer-images').getPublicUrl(filePath);
-      
-      if (type === 'customer') {
-          setFormData(prev => ({ ...prev, customer_image_url: data.publicUrl }));
+      // Prepare the data for Cloudinary
+      const cloudFormData = new FormData();
+      cloudFormData.append('file', file);
+      // Use the customer preset we set up in .env.local
+      cloudFormData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_CUSTOMER_PRESET); 
+
+      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+
+      // Send directly to Cloudinary via REST API
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: cloudFormData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+          // Inject auto-optimization parameters into the URL
+          const optimizedUrl = data.secure_url.replace('/upload/', '/upload/f_auto,q_auto/');
+
+          if (type === 'customer') {
+              setFormData(prev => ({ ...prev, customer_image_url: optimizedUrl }));
+          } else {
+              setFormData(prev => ({ ...prev, guarantor_image_url: optimizedUrl }));
+          }
+          alert(`${type === 'customer' ? 'Customer' : 'Guarantor'} photo uploaded!`);
       } else {
-          setFormData(prev => ({ ...prev, guarantor_image_url: data.publicUrl }));
+          throw new Error(data.error?.message || 'Failed to upload image to Cloudinary');
       }
       
-      alert(`${type === 'customer' ? 'Customer' : 'Guarantor'} photo uploaded!`);
     } catch (error) { 
         alert('Error uploading photo: ' + error.message); 
     } finally { 
