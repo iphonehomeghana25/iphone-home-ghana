@@ -22,7 +22,7 @@ export default function ShopHero() {
                     <span>📞 024 317 9760 / 053 585 5514</span>
                 </div>
 
-                <button onClick={() => navigate('/shop')}>Shop Haatso Stock</button>
+                <button onClick={() => navigate('/shop')}>Shop Kwashieman Stock</button>
             </div>
         </div>
 

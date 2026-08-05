@@ -66,38 +66,36 @@ export default function BNPLPage() {
                 
                 {/* Brand New Devices */}
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Brand New - iPhone 17 Series</td></tr>
-                <PriceRow model="iPhone 17 Pro Max 1TB (Sim)" price="24,900" deposit="9,960 (40%)" weekly="1,867.50" monthly="7,470" />
-                <PriceRow model="iPhone 17 Pro Max 2TB (eSIM Unlock)" price="23,500" deposit="13,800 (40%)" weekly="1,115" monthly="4,600" />
-                <PriceRow model="iPhone 17 Pro Max 1TB (eSIM Unlock)" price="20,000" deposit="12,000 (40%)" weekly="1,000" monthly="4,000" />
-                <PriceRow model="iPhone 17 Pro Max 512GB (Sim)" price="21,000" deposit="8,400 (40%)" weekly="1,575" monthly="6,300" />
-                <PriceRow model="iPhone 17 Pro Max 512GB (eSIM Unlock)" price="17,500" deposit="7,000 (40%)" weekly="1,312.50" monthly="5,250" />
-                <PriceRow model="iPhone 17 Pro Max 256GB (Sim)" price="17,500" deposit="7,000 (40%)" weekly="1,312" monthly="5,250" />
-                <PriceRow model="iPhone 17 Pro Max 256GB (eSIM)" price="15,900" deposit="9,540 (40%)" weekly="795" monthly="3,180" />
-                
-                <PriceRow model="iPhone 17 Pro 1TB (Sim)" price="18,500" deposit="7,400 (40%)" weekly="1,387.50" monthly="5,550" />
-                <PriceRow model="iPhone 17 Pro 1TB (eSIM Unlock)" price="16,800" deposit="10,080 (40%)" weekly="840" monthly="3,360" />
-                <PriceRow model="iPhone 17 Pro 512GB (Sim)" price="17,500" deposit="7,000 (40%)" weekly="1,312.50" monthly="5,250" />
-                <PriceRow model="iPhone 17 Pro 512GB (eSIM Unlock)" price="15,300" deposit="9,180 (40%)" weekly="765" monthly="3,060" />
-                <PriceRow model="iPhone 17 Pro 256GB (Sim)" price="16,000" deposit="6,400 (40%)" weekly="1,200" monthly="4,800" />
-                <PriceRow model="iPhone 17 Pro 256GB (eSIM Unlock)" price="14,300" deposit="8,580 (40%)" weekly="715" monthly="2,860" />
-                
-                <PriceRow model="iPhone 17 Air 1TB" price="15,800" deposit="6,320 (40%)" weekly="1,185" monthly="4,740" />
-                <PriceRow model="iPhone 17 Air 512GB" price="13,500" deposit="8,100 (60%)" weekly="675" monthly="2,700" />
-                <PriceRow model="iPhone 17 Air 256GB" price="11,900" deposit="7,140 (60%)" weekly="595" monthly="2,380" />
-                <PriceRow model="iPhone 17 256GB" price="10,900" deposit="4,360 (40%)" weekly="817.50" monthly="3,270" />
+                <PriceRow model="iPhone 17 Pro Max 2TB eSIM Unlock (Fresh Inbox)" price="24,500" deposit="9,800 (40%)" weekly="1,837.50" monthly="7,350" />
+                <PriceRow model="iPhone 17 Pro Max 2TB eSIM Unlock" price="22,000" deposit="13,200 (60%)" weekly="1,100" monthly="4,400" />
+                <PriceRow model="iPhone 17 Pro Max 1TB Sim (Fresh Inbox)" price="22,800" deposit="9,120 (40%)" weekly="1,710" monthly="6,840" />
+                <PriceRow model="iPhone 17 Pro Max 1TB eSIM Unlock" price="20,000" deposit="12,000 (60%)" weekly="1,000" monthly="4,000" />
+                <PriceRow model="iPhone 17 Pro Max 512GB Sim" price="19,600" deposit="7,840 (40%)" weekly="1,470" monthly="5,880" />
+                <PriceRow model="iPhone 17 Pro Max 512GB eSIM Unlock" price="17,300" deposit="10,038 (60%)" weekly="907.75" monthly="3,631" />
+                <PriceRow model="iPhone 17 Pro Max 256GB Sim" price="17,300" deposit="6,920 (40%)" weekly="1,297.50" monthly="5,190" />
+                <PriceRow model="iPhone 17 Pro Max 256GB eSIM" price="15,200" deposit="9,120 (60%)" weekly="760" monthly="3,040" />
+                <PriceRow model="iPhone 17 Pro 1TB Sim" price="18,900" deposit="7,560 (40%)" weekly="1,417.50" monthly="5,670" />
+                <PriceRow model="iPhone 17 Pro 1TB eSIM Unlock" price="16,800" deposit="10,080 (60%)" weekly="840" monthly="3,360" />
+                <PriceRow model="iPhone 17 Pro 512GB Sim" price="17,750" deposit="7,100 (40%)" weekly="1,331" monthly="5,325" />
+                <PriceRow model="iPhone 17 Pro 512GB eSIM Unlock" price="15,300" deposit="9,180 (60%)" weekly="765" monthly="3,060" />
+                <PriceRow model="iPhone 17 Pro 256GB Sim" price="15,750" deposit="6,300 (40%)" weekly="1,181.75" monthly="4,725" />
+                <PriceRow model="iPhone 17 Pro 256GB eSIM Unlock" price="14,100" deposit="8,460 (60%)" weekly="705" monthly="2,820" />
+                <PriceRow model="iPhone 17 Air 1TB eSIM" price="14,800" deposit="8,880 (60%)" weekly="740" monthly="2,960" />
+                <PriceRow model="iPhone 17 Air 512GB eSIM" price="13,500" deposit="8,100 (60%)" weekly="675" monthly="2,700" />
+                <PriceRow model="iPhone 17 Air 256GB eSIM" price="11,600" deposit="6,960 (60%)" weekly="580" monthly="2,340" />
+                <PriceRow model="iPhone 17 256GB" price="10,500" deposit="4,200 (40%)" weekly="787.50" monthly="3,150" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Brand New - iPhone 16 Series</td></tr>
-                <PriceRow model="iPhone 16 Pro Max 256GB" price="14,800" deposit="5,920 (40%)" weekly="1,110" monthly="4,440" />
-                <PriceRow model="iPhone 16 Pro Max (eSIM Unlock)" price="13,100" deposit="5,240 (40%)" weekly="982.50" monthly="3,930" />
-                <PriceRow model="iPhone 16 Pro 256GB" price="14,900" deposit="5,960 (40%)" weekly="1,117.50" monthly="4,470" />
-                <PriceRow model="iPhone 16e 128GB (Sim)" price="6,800" deposit="2,720 (40%)" weekly="510" monthly="2,040" />
-                <PriceRow model="iPhone 16 Plus 256GB" price="10,900" deposit="4,360 (40%)" weekly="817.50" monthly="3,270" />
-                <PriceRow model="iPhone 16 Plus 128GB" price="9,900" deposit="3,960 (40%)" weekly="742.50" monthly="2,970" />
+                <PriceRow model="iPhone 16 Pro Max 256GB" price="14,500" deposit="5,400 (40%)" weekly="1,012.50" monthly="4,050" />
+                <PriceRow model="iPhone 16 Pro 256GB" price="13,000" deposit="5,200 (40%)" weekly="975" monthly="3,900" />
+                <PriceRow model="iPhone 16e 128GB eSIM" price="5,200" deposit="3,120 (60%)" weekly="260" monthly="1,040" />
+                <PriceRow model="iPhone 16 Plus 256GB" price="11,800" deposit="4,270 (40%)" weekly="941.25" monthly="3,765" />
+                <PriceRow model="iPhone 16 Plus 128GB" price="10,500" deposit="4,200 (40%)" weekly="787.50" monthly="3,150" />
                 <PriceRow model="iPhone 16 256GB" price="9,800" deposit="3,920 (40%)" weekly="735" monthly="2,940" />
-                <PriceRow model="iPhone 16 128GB" price="9,500" deposit="3,800 (40%)" weekly="712.50" monthly="2,850" />
+                <PriceRow model="iPhone 16 128GB" price="9,000" deposit="3,600 (40%)" weekly="675" monthly="2,700" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Brand New - iPhone 15 Series</td></tr>
-                <PriceRow model="iPhone 15 256GB" price="9,390" deposit="3,756 (40%)" weekly="704.25" monthly="2,817" />
+                <PriceRow model="iPhone 15 256GB Sim" price="7,800" deposit="3,120 (40%)" weekly="585" monthly="2,340" />
 
                 {/* UK Used Section Header */}
                 <tr style={{ borderBottom: '2px solid #eaecf0' }}>
@@ -108,61 +106,67 @@ export default function BNPLPage() {
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 16 Series</td></tr>
                 <PriceRow model="iPhone 16 Pro Max 1TB" price="13,500" deposit="5,400 (40%)" weekly="1,012.50" monthly="4,050" />
-                <PriceRow model="iPhone 16 Pro Max 512GB" price="12,900" deposit="5,160 (40%)" weekly="967.50" monthly="3,870" />
-                <PriceRow model="iPhone 16 Pro Max 256GB" price="11,900" deposit="4,760 (40%)" weekly="892.50" monthly="3,570" />
-                <PriceRow model="iPhone 16 Pro 256GB" price="10,500" deposit="4,200 (40%)" weekly="787.50" monthly="3,150" />
-                <PriceRow model="iPhone 16 Plus 256GB" price="8,900" deposit="3,360 (40%)" weekly="356" monthly="1,424" />
+                <PriceRow model="iPhone 16 Pro Max 512GB" price="12,500" deposit="5,000 (40%)" weekly="937.50" monthly="3,750" />
+                <PriceRow model="iPhone 16 Pro Max 256GB" price="11,000" deposit="4,400 (40%)" weekly="825" monthly="3,300" />
+                <PriceRow model="iPhone 16 Pro 256GB" price="9,000" deposit="3,600 (40%)" weekly="675" monthly="2,700" />
+                <PriceRow model="iPhone 16 Pro 128GB Sim" price="8,000" deposit="3,200 (40%)" weekly="600" monthly="2,400" />
+                <PriceRow model="iPhone 16 Plus 256GB" price="8,900" deposit="3,560 (40%)" weekly="667.50" monthly="2,670" />
                 <PriceRow model="iPhone 16 Plus 128GB" price="8,400" deposit="3,360 (40%)" weekly="630" monthly="1,680" />
-                <PriceRow model="iPhone 16 256GB" price="8,600" deposit="3,440 (40%)" weekly="645" monthly="2,520" />
-                <PriceRow model="iPhone 16 128GB" price="8,050" deposit="3,220 (40%)" weekly="603.75" monthly="2,415" />
+                <PriceRow model="iPhone 16 256GB" price="8,300" deposit="3,320 (40%)" weekly="622.50" monthly="2,490" />
+                <PriceRow model="iPhone 16 128GB" price="7,500" deposit="3,080 (40%)" weekly="562.50" monthly="2,250" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 15 Series</td></tr>
-                <PriceRow model="iPhone 15 Pro Max 256GB (Sim)" price="8,900" deposit="3,560 (40%)" weekly="667.50" monthly="2,670" />
+                <PriceRow model="iPhone 15 Pro Max 256GB (Sim)" price="8,800" deposit="3,520 (40%)" weekly="660" monthly="2,640" />
                 <PriceRow model="iPhone 15 Pro Max 256GB (eSIM)" price="8,000" deposit="3,200 (40%)" weekly="600" monthly="2,400" />
-                <PriceRow model="iPhone 15 Pro 256GB (Sim)" price="8,000" deposit="3,200 (40%)" weekly="600" monthly="2,400" />
-                <PriceRow model="iPhone 15 Pro 128GB" price="7,500" deposit="3,080 (40%)" weekly="562.50" monthly="2,250" />
+                <PriceRow model="iPhone 15 Pro 256GB" price="7,500" deposit="3,080 (40%)" weekly="562.50" monthly="2,250" />
+                <PriceRow model="iPhone 15 Pro 128GB" price="7,150" deposit="2,860 (40%)" weekly="536.25" monthly="2,145" />
                 <PriceRow model="iPhone 15 Plus 256GB" price="6,900" deposit="2,760 (40%)" weekly="517.50" monthly="2,070" />
                 <PriceRow model="iPhone 15 Plus 128GB" price="6,450" deposit="2,580 (40%)" weekly="483.75" monthly="1,935" />
                 <PriceRow model="iPhone 15 256GB" price="6,050" deposit="2,420 (40%)" weekly="453.75" monthly="1,815" />
-                <PriceRow model="iPhone 15 128GB" price="5,650" deposit="2,260 (40%)" weekly="423.75" monthly="1,695" />
+                <PriceRow model="iPhone 15 128GB" price="5,750" deposit="2,300 (40%)" weekly="431.25" monthly="1,725" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 14 Series</td></tr>
-                <PriceRow model="iPhone 14 Pro Max 256GB" price="7,600" deposit="3,040 (40%)" weekly="570" monthly="2,280" />
-                <PriceRow model="iPhone 14 Pro Max 128GB" price="7,000" deposit="2,800 (40%)" weekly="525" monthly="2,100" />
-                <PriceRow model="iPhone 14 Pro 256GB" price="6,450" deposit="2,580 (40%)" weekly="483.75" monthly="1,935" />
-                <PriceRow model="iPhone 14 Pro 128GB" price="6,050" deposit="2,420 (40%)" weekly="453.75" monthly="1,815" />
-                <PriceRow model="iPhone 14 Plus 256GB" price="6,700" deposit="2,680 (40%)" weekly="502.50" monthly="2,010" />
-                <PriceRow model="iPhone 14 Plus 128GB" price="5,900" deposit="2,360 (40%)" weekly="442" monthly="1,770" />
-                <PriceRow model="iPhone 14 256GB" price="5,000" deposit="2,000 (40%)" weekly="375" monthly="1,500" />
-                <PriceRow model="iPhone 14 128GB" price="4,450" deposit="1,780 (40%)" weekly="337.75" monthly="1,335" />
+                <PriceRow model="iPhone 14 Pro Max 256GB" price="7,400" deposit="2,960 (40%)" weekly="555" monthly="2,220" />
+                <PriceRow model="iPhone 14 Pro Max 128GB" price="6,850" deposit="2,740 (40%)" weekly="513.75" monthly="2,055" />
+                <PriceRow model="iPhone 14 Pro 256GB" price="6,300" deposit="2,520 (40%)" weekly="472.50" monthly="1,890" />
+                <PriceRow model="iPhone 14 Pro 128GB" price="5,950" deposit="2,380 (40%)" weekly="446.25" monthly="1,785" />
+                <PriceRow model="iPhone 14 Plus 256GB" price="5,700" deposit="2,280 (40%)" weekly="427.50" monthly="1,710" />
+                <PriceRow model="iPhone 14 Plus 128GB" price="4,750" deposit="1,900 (40%)" weekly="356.25" monthly="1,425" />
+                <PriceRow model="iPhone 14 256GB" price="4,600" deposit="1,840 (40%)" weekly="345" monthly="1,380" />
+                <PriceRow model="iPhone 14 128GB" price="4,450" deposit="1,700 (40%)" weekly="318.75" monthly="1,275" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 13 Series</td></tr>
-                <PriceRow model="iPhone 13 Pro Max 256GB" price="5,850" deposit="2,340 (40%)" weekly="438.75" monthly="1,755" />
+                <PriceRow model="iPhone 13 Pro Max 256GB" price="5,750" deposit="2,300 (40%)" weekly="431.25" monthly="1,725" />
                 <PriceRow model="iPhone 13 Pro Max 128GB" price="5,350" deposit="2,140 (40%)" weekly="401.25" monthly="1,605" />
                 <PriceRow model="iPhone 13 Pro 256GB" price="5,050" deposit="2,020 (40%)" weekly="378.75" monthly="1,515" />
                 <PriceRow model="iPhone 13 Pro 128GB" price="4,650" deposit="1,860 (40%)" weekly="348.75" monthly="1,395" />
                 <PriceRow model="iPhone 13 256GB" price="4,000" deposit="1,600 (40%)" weekly="300" monthly="1,200" />
-                <PriceRow model="iPhone 13 128GB" price="3,650" deposit="1,460 (40%)" weekly="273.75" monthly="1,095" />
+                <PriceRow model="iPhone 13 128GB" price="3,600" deposit="1,440 (40%)" weekly="270" monthly="1,080" />
                 <PriceRow model="iPhone 13 Mini 128GB" price="3,200" deposit="1,280 (40%)" weekly="240" monthly="960" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 12 Series</td></tr>
-                <PriceRow model="iPhone 12 Pro Max 256GB" price="4,600" deposit="1,840 (40%)" weekly="345" monthly="1,380" />
-                <PriceRow model="iPhone 12 Pro Max 128GB" price="4,050" deposit="1,620 (40%)" weekly="303.75" monthly="1,215" />
-                <PriceRow model="iPhone 12 Pro 256GB" price="3,850" deposit="1,540 (40%)" weekly="288.75" monthly="1,155" />
-                <PriceRow model="iPhone 12 Pro 128GB" price="3,400" deposit="1,360 (40%)" weekly="255" monthly="1,020" />
-                <PriceRow model="iPhone 12 256GB" price="3,650" deposit="1,460 (40%)" weekly="273.75" monthly="1,095" />
-                <PriceRow model="iPhone 12 128GB" price="2,950" deposit="1,180 (40%)" weekly="221.25" monthly="885" />
-                <PriceRow model="iPhone 12 Mini 128GB" price="2,500" deposit="1,000" weekly="187.50" monthly="750" />
-                <PriceRow model="iPhone 12 64GB" price="2,550" deposit="1,020 (40%)" weekly="191.25" monthly="765" />
+                <PriceRow model="iPhone 12 Pro Max 256GB" price="4,550" deposit="1,820 (40%)" weekly="341.25" monthly="1,365" />
+                <PriceRow model="iPhone 12 Pro Max 128GB" price="3,900" deposit="1,560 (40%)" weekly="281.25" monthly="1,125" />
+                <PriceRow model="iPhone 12 Pro 256GB" price="3,650" deposit="1,460 (40%)" weekly="273.75" monthly="1,095" />
+                <PriceRow model="iPhone 12 Pro 128GB" price="3,350" deposit="1,340 (40%)" weekly="251.25" monthly="1,005" />
+                <PriceRow model="iPhone 12 256GB" price="3,300" deposit="1,320 (40%)" weekly="247.50" monthly="990" />
+                <PriceRow model="iPhone 12 128GB" price="2,850" deposit="1,140 (40%)" weekly="213.75" monthly="855" />
+                <PriceRow model="iPhone 12 Mini 128GB" price="2,400" deposit="960 (40%)" weekly="180" monthly="720" />
+                <PriceRow model="iPhone 12 64GB" price="2,400" deposit="960 (40%)" weekly="180" monthly="720" />
 
                 <tr style={{ borderBottom: '1px solid #eaecf0' }}><td colSpan="5" style={{ padding: '1rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>UK Used - iPhone 11 & XR Series</td></tr>
-                <PriceRow model="iPhone 11 Pro Max 256GB" price="3,350" deposit="1,340 (40%)" weekly="251.25" monthly="1,005" />
-                <PriceRow model="iPhone 11 Pro Max 64GB" price="3,000" deposit="1,200 (40%)" weekly="225" monthly="900" />
-                <PriceRow model="iPhone 11 Pro 256GB" price="3,000" deposit="1,200 (40%)" weekly="225" monthly="900" />
-                <PriceRow model="iPhone 11 Pro 64GB" price="2,500" deposit="1,000 (40%)" weekly="194.25" monthly="777" />
-                <PriceRow model="iPhone 11 128GB" price="2,500" deposit="1,500 (60%)" weekly="125" monthly="490" />
-                <PriceRow model="iPhone 11 64GB" price="2,250" deposit="1,350 (60%)" weekly="112.50" monthly="450" />
-                <PriceRow model="iPhone XR 128GB (Straight Buy Only)" price="2,000" deposit="N/A" weekly="N/A" monthly="N/A" />
+                <PriceRow model="iPhone 11 Pro Max 256GB" price="3,100" deposit="1,240 (40%)" weekly="232.50" monthly="930" />
+                <PriceRow model="iPhone 11 Pro Max 64GB" price="2,750" deposit="1,100 (40%)" weekly="206.25" monthly="825" />
+                <PriceRow model="iPhone 11 Pro 256GB" price="2,900" deposit="1,160 (40%)" weekly="217.50" monthly="870" />
+                <PriceRow model="iPhone 11 Pro 64GB" price="2,600" deposit="1,040 (40%)" weekly="195" monthly="780" />
+                <PriceRow model="iPhone 11 128GB (60% Down)" price="2,450" deposit="1,470 (60%)" weekly="122.50" monthly="490" />
+                <PriceRow model="iPhone 11 128GB (40% Down)" price="2,450" deposit="980 (40%)" weekly="183.75" monthly="735" />
+                <PriceRow model="iPhone 11 64GB (60% Down)" price="2,150" deposit="1,350 (60%)" weekly="112.50" monthly="450" />
+                <PriceRow model="iPhone 11 64GB (40% Down)" price="2,150" deposit="860 (40%)" weekly="163.75" monthly="655" />
+                <PriceRow model="iPhone XR 128GB (60% Down)" price="2,000" deposit="1,200 (60%)" weekly="100" monthly="400" />
+                <PriceRow model="iPhone XR 128GB (40% Down)" price="2,000" deposit="800 (40%)" weekly="150" monthly="600" />
+                <PriceRow model="iPhone XR 64GB (60% Down)" price="1,020" deposit="612 (60%)" weekly="85" monthly="340" />
+                <PriceRow model="iPhone XR 64GB (40% Down)" price="1,700" deposit="680 (40%)" weekly="127.50" monthly="510" />
 
               </tbody>
             </table>
