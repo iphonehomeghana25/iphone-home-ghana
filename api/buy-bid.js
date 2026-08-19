@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 2. Safely check for keys using your EXACT 'REACT_APP_' variable names
+    // 2. Safely check for keys
     if (!process.env.REACT_APP_SUPABASE_URL || !process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY) {
       console.error("Vercel is missing Supabase Keys!");
       return res.status(500).json({ error: 'Server config error: Missing Supabase Keys' });
@@ -19,14 +19,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server config error: Missing Paystack Key' });
     }
 
-    // 3. Initialize secure clients safely
+    // 3. Initialize secure clients
     const supabase = createClient(
       process.env.REACT_APP_SUPABASE_URL,
       process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY 
     );
     
-    // Using the prefixed Resend key as well
-    const resend = new Resend(process.env.REACT_APP_RESEND_API_KEY);
+    // Fallback to whichever Resend key format you have in Vercel
+    const resendKey = process.env.RESEND_API_KEY || process.env.REACT_APP_RESEND_API_KEY;
+    const resend = new Resend(resendKey);
 
     const { 
       reference, customer_name, customer_phone, customer_email, 
@@ -69,7 +70,7 @@ export default async function handler(req, res) {
 
     // --- STEP 6: ISOLATED EMAIL DISPATCH ---
     try {
-      if (process.env.REACT_APP_RESEND_API_KEY) {
+      if (resendKey) {
         const emailHtml = `
           <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eaecf0; padding: 20px; border-radius: 8px;">
             <h1 style="color: #000; text-align: center;">Bid Confirmed! 🎉</h1>
@@ -84,8 +85,9 @@ export default async function handler(req, res) {
         `;
 
         await resend.emails.send({
-          from: 'iPhone Home Ghana <onboarding@resend.dev>', // Update if you have a custom domain on Resend
-          to: customer_email,
+          // ALIGNED WITH YOUR WORKING CODE
+          from: 'iPhone Home Ghana <receipts@iphonehomeghana.com>', 
+          to: [customer_email], 
           subject: 'Your Bid Confirmation - iPhone Home Ghana',
           html: emailHtml
         });
