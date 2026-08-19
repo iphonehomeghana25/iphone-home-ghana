@@ -2,8 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function BidPage() {
-  const [activeBid, setActiveBid] = useState(null);
+  const [activeBids, setActiveBids] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Inject Paystack script securely on mount
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    fetchActiveBids();
+  }, []);
+
+  async function fetchActiveBids() {
+    try {
+      // FIX 1: Removed .limit(1).single() to fetch ALL active bids
+      const { data, error } = await supabase
+        .from('active_bids')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (data) setActiveBids(data);
+    } catch (error) {
+      console.error('Error fetching active bids:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <div className="container py-section" style={{ textAlign: 'center' }}>Loading live bids...</div>;
+
+  if (activeBids.length === 0) {
+    return (
+      <div className="container py-section" style={{ textAlign: 'center' }}>
+        <h2>No Active Bids Right Now</h2>
+        <p>Check back later for your chance to win big!</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-section">
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0 }}>Live Bidding Auctions 🔥</h1>
+        <p style={{ color: '#667085', marginTop: '0.5rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
+      </div>
+
+      {/* Map through all active bids and render a separate card for each */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+        {activeBids.map(bid => (
+          <BidCard key={bid.id} activeBid={bid} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// --- NEW BID CARD COMPONENT ---
+// This handles the state, timer, and form for EACH individual bid independently
+function BidCard({ activeBid }) {
   const [timeLeft, setTimeLeft] = useState({});
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -19,34 +78,7 @@ export default function BidPage() {
   const pricePerTicket = 10; 
   const totalAmount = ticketCount * pricePerTicket;
 
-  useEffect(() => {
-    // Inject Paystack script securely on mount
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    fetchActiveBid();
-  }, []);
-
-  async function fetchActiveBid() {
-    try {
-      const { data, error } = await supabase
-        .from('active_bids')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (data) setActiveBid(data);
-    } catch (error) {
-      console.error('No active bids found or error:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Countdown Timer Logic
   useEffect(() => {
     if (!activeBid) return;
 
@@ -71,14 +103,10 @@ export default function BidPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- 4. SECURE VERIFICATION (DEBUGGING MODE) ---
   const onSuccess = async (reference) => {
-    console.log("1. PAYSTACK SUCCESS TRIGGERED! Reference:", reference);
     setIsVerifying(true);
     
     try {
-      console.log("2. Sending data to Vercel Backend...");
-      
       const response = await fetch('/api/buy-bid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,13 +122,9 @@ export default function BidPage() {
         })
       });
 
-      console.log("3. Vercel Response Status:", response.status);
-      
       const textResult = await response.text(); 
-      console.log("4. Raw Vercel Response:", textResult);
-
       if (!response.ok) {
-        alert(`Vercel Backend Failed (Status ${response.status}). Check console for details.`);
+        alert(`Verification Failed (Status ${response.status}).`);
         setIsVerifying(false);
         return;
       }
@@ -108,14 +132,12 @@ export default function BidPage() {
       const result = JSON.parse(textResult);
 
       if (result.success) {
-        console.log("5. Database save successful! Showing UI.");
         setIsSuccess(true);
       } else {
         alert('Database Error: ' + result.error);
       }
     } catch (error) {
-      console.error("FATAL TRY/CATCH ERROR:", error);
-      alert(`Frontend Caught Error: ${error.message}`);
+      alert(`Frontend Error: ${error.message}`);
     } finally {
       setIsVerifying(false);
     }
@@ -127,7 +149,6 @@ export default function BidPage() {
     if (!process.env.REACT_APP_PAYSTACK_PUBLIC_KEY) return alert('Paystack Public Key is missing!');
     if (!formData.email) return alert('Please enter a valid email address.');
     
-    // --- NATIVE PAYSTACK TRIGGER (BULLETPROOF) ---
     const handler = window.PaystackPop.setup({
       key: process.env.REACT_APP_PAYSTACK_PUBLIC_KEY,
       email: formData.email,
@@ -135,7 +156,6 @@ export default function BidPage() {
       currency: 'GHS',
       reference: (new Date()).getTime().toString(),
       callback: function(response) {
-        // This fires immediately when Paystack successfully charges the card
         onSuccess(response);
       },
       onClose: function() {
@@ -146,36 +166,26 @@ export default function BidPage() {
     handler.openIframe();
   };
 
-  if (loading) return <div className="container py-section" style={{ textAlign: 'center' }}>Loading live bids...</div>;
-
-  if (!activeBid) {
-    return (
-      <div className="container py-section" style={{ textAlign: 'center' }}>
-        <h2>No Active Bids Right Now</h2>
-        <p>Check back later for your chance to win big!</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container py-section">
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center' }}>
+    <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #eaecf0', padding: '2rem', boxShadow: '0 10px 25px rgba(0,0,0,0.03)' }}>
+      {/* FIX 3: Changed grid to a responsive flex layout to prevent mobile cutoff */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center' }}>
         
         {/* Left Side: Product Details & Timer */}
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ background: '#ef4444', color: 'white', padding: '6px 16px', borderRadius: '100px', fontWeight: 'bold', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+        <div style={{ flex: '1 1 280px', textAlign: 'center' }}>
+          <span style={{ background: '#ef4444', color: 'white', padding: '6px 16px', borderRadius: '100px', fontWeight: 'bold', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Live Auction
           </span>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '800', margin: '1.5rem 0 1rem 0' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '1rem 0' }}>
             Win an {activeBid.product_name}
-          </h1>
+          </h2>
           <img 
             src={activeBid.image_url} 
             alt={activeBid.product_name} 
-            style={{ width: '100%', maxWidth: '350px', height: 'auto', objectFit: 'contain', margin: '0 auto' }} 
+            style={{ width: '100%', maxWidth: '280px', height: 'auto', objectFit: 'contain', margin: '0 auto' }} 
           />
           
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
             {timeLeft ? (
               <>
                 <TimeBox label="Days" value={timeLeft.days}/>
@@ -190,40 +200,39 @@ export default function BidPage() {
         </div>
 
         {/* Right Side: Entry Form or Success Screen */}
-        <div style={{ background: 'white', padding: '2.5rem', borderRadius: '16px', border: '1px solid #eaecf0', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
-          
+        <div style={{ flex: '1 1 300px' }}>
           {isSuccess ? (
-            // --- SUCCESS SCREEN UI ---
-            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-                <h2 style={{ color: '#059669', fontWeight: '800', marginBottom: '1rem' }}>Payment Successful!</h2>
-                <p style={{ color: '#4b5563', fontSize: '1.1rem', marginBottom: '2rem' }}>
-                    Thank you, <strong>{formData.fullName}</strong>. You have officially secured <strong>{ticketCount}</strong> bid(s) for the {activeBid.product_name}.
+            <div style={{ textAlign: 'center', padding: '2rem 1rem', background: '#ecfdf5', borderRadius: '12px', border: '2px solid #10b981' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎉</div>
+                <h2 style={{ color: '#065f46', fontWeight: '800', marginBottom: '1rem', fontSize: '1.5rem' }}>Payment Successful!</h2>
+                <p style={{ color: '#047857', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                    Thank you, <strong>{formData.fullName}</strong>. You secured <strong>{ticketCount}</strong> bid(s). Check your email for your digital receipt.
                 </p>
-                <div style={{ background: '#f3f4f6', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
-                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#6b7280' }}>We have sent a digital receipt to:</p>
-                    <p style={{ margin: '0.25rem 0 0 0', fontWeight: 'bold', color: '#111' }}>{formData.email}</p>
-                </div>
                 <button 
-                  onClick={() => window.location.reload()} 
-                  style={{ background: 'transparent', color: 'black', border: '1px solid black', padding: '0.8rem 2rem', borderRadius: '100px', fontWeight: 'bold', cursor: 'pointer' }}
+                  onClick={() => {
+                    setIsSuccess(false);
+                    setTicketCount(1);
+                    setFormData({ fullName: '', phone: '', email: '' });
+                  }} 
+                  style={{ background: '#059669', color: 'white', border: 'none', padding: '0.8rem 2rem', borderRadius: '100px', fontWeight: 'bold', cursor: 'pointer' }}
                 >
-                  Buy More Bids
+                  Buy More For This Item
                 </button>
             </div>
           ) : (
-            // --- ENTRY FORM UI ---
-            <>
+            <div style={{ padding: '1rem' }}>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: '700' }}>Secure Your Entry</h3>
-                <p style={{ color: '#667085', marginBottom: '2rem' }}>Only GH₵{pricePerTicket} per bid. The more bids you buy, the higher your chances of winning!</p>
+                <p style={{ color: '#667085', marginBottom: '1.5rem', fontSize: '0.95rem' }}>Only GH₵{pricePerTicket} per bid. Buy more to increase your chances!</p>
                 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  
                   <div>
                     <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>How many bids?</label>
                     <div style={{ display: 'flex', alignItems: 'center', border: '2px solid #eaecf0', borderRadius: '8px', overflow: 'hidden' }}>
-                      <button type="button" onClick={() => setTicketCount(Math.max(1, ticketCount - 1))} style={{ flex: 1, padding: '1rem', background: '#f9fafb', fontSize: '1.2rem', cursor: 'pointer', border: 'none' }}>-</button>
-                      <div style={{ flex: 2, textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>{ticketCount}</div>
-                      <button type="button" onClick={() => setTicketCount(ticketCount + 1)} style={{ flex: 1, padding: '1rem', background: '#f9fafb', fontSize: '1.2rem', cursor: 'pointer', border: 'none' }}>+</button>
+                      {/* FIX 2: Added visible background, border, and text color to +/- buttons */}
+                      <button type="button" onClick={() => setTicketCount(Math.max(1, ticketCount - 1))} style={{ flex: 1, padding: '1rem', background: '#e5e7eb', color: '#000', fontSize: '1.4rem', fontWeight: 'bold', cursor: 'pointer', borderRight: '1px solid #d1d5db', borderLeft: 'none', borderTop: 'none', borderBottom: 'none' }}>-</button>
+                      <div style={{ flex: 2, textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold', background: '#fff' }}>{ticketCount}</div>
+                      <button type="button" onClick={() => setTicketCount(ticketCount + 1)} style={{ flex: 1, padding: '1rem', background: '#e5e7eb', color: '#000', fontSize: '1.4rem', fontWeight: 'bold', cursor: 'pointer', borderLeft: '1px solid #d1d5db', borderRight: 'none', borderTop: 'none', borderBottom: 'none' }}>+</button>
                     </div>
                   </div>
 
@@ -231,9 +240,9 @@ export default function BidPage() {
                   <input required type="tel" name="phone" placeholder="Phone Number (WhatsApp)" value={formData.phone} onChange={handleInputChange} style={inputStyle} />
                   <input required type="email" name="email" placeholder="Email Address (For receipt)" value={formData.email} onChange={handleInputChange} style={inputStyle} />
                   
-                  <div style={{ borderTop: '1px solid #eaecf0', margin: '1rem 0' }}></div>
+                  <div style={{ borderTop: '1px solid #eaecf0', margin: '0.5rem 0' }}></div>
                   
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1.25rem', fontWeight: '800' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1.2rem', fontWeight: '800' }}>
                     <span>Total to Pay:</span>
                     <span>GH₵{totalAmount}</span>
                   </div>
@@ -244,13 +253,13 @@ export default function BidPage() {
                     style={{ 
                       width: '100%', padding: '1.2rem', fontSize: '1.1rem', fontWeight: 'bold', 
                       background: (!timeLeft || isVerifying) ? '#ccc' : 'black', 
-                      color: 'white', borderRadius: '8px', marginTop: '1rem', border: 'none', cursor: (!timeLeft || isVerifying) ? 'not-allowed' : 'pointer'
+                      color: 'white', borderRadius: '8px', marginTop: '0.5rem', border: 'none', cursor: (!timeLeft || isVerifying) ? 'not-allowed' : 'pointer'
                     }}
                   >
-                    {isVerifying ? 'Verifying Payment...' : `Pay GH₵${totalAmount} Now`}
+                    {isVerifying ? 'Verifying...' : `Pay GH₵${totalAmount} Now`}
                   </button>
                 </form>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -258,13 +267,14 @@ export default function BidPage() {
   );
 }
 
+// Small helper component for the countdown squares
 function TimeBox({ value, label }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f9fafb', padding: '0.8rem 1.2rem', borderRadius: '8px', border: '1px solid #eaecf0', minWidth: '70px' }}>
-      <span style={{ fontSize: '1.8rem', fontWeight: '800', lineHeight: '1' }}>{value}</span>
-      <span style={{ fontSize: '0.75rem', color: '#667085', textTransform: 'uppercase', fontWeight: '600', marginTop: '0.25rem' }}>{label}</span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#f9fafb', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #eaecf0', minWidth: '60px' }}>
+      <span style={{ fontSize: '1.5rem', fontWeight: '900', lineHeight: '1' }}>{value}</span>
+      <span style={{ fontSize: '0.7rem', color: '#667085', textTransform: 'uppercase', fontWeight: '700', marginTop: '0.3rem' }}>{label}</span>
     </div>
   );
 }
 
-const inputStyle = { padding: '1rem', borderRadius: '8px', border: '1px solid #eaecf0', width: '100%', boxSizing: 'border-box', fontSize: '1rem', fontFamily: 'inherit' };
+const inputStyle = { padding: '0.9rem', borderRadius: '8px', border: '1px solid #d1d5db', width: '100%', boxSizing: 'border-box', fontSize: '1rem', fontFamily: 'inherit' };
