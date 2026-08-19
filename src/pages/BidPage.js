@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import LiveBidToasts from '../components/LiveBidToasts';
 
 export default function BidPage() {
   const [activeBids, setActiveBids] = useState([]);
@@ -45,12 +46,16 @@ export default function BidPage() {
 
   return (
     <div className="container py-section">
+      
+      {/* --- NEW LIVE NOTIFICATION LISTENER --- */}
+      <LiveBidToasts />
+
       <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0 }}>Live Bidding Auctions 🔥</h1>
         <p style={{ color: '#667085', marginTop: '0.5rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
       </div>
 
-      {/* Map through all active bids and render a separate card for each */}
+      {/* Map through all active bids... */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
         {activeBids.map(bid => (
           <BidCard key={bid.id} activeBid={bid} />
