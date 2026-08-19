@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { usePaystackPayment } from 'react-paystack';
 
 export default function BidPage() {
   const [activeBid, setActiveBid] = useState(null);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({});
   const [isVerifying, setIsVerifying] = useState(false);
-  
-  // --- NEW: Success State ---
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Form State
@@ -23,6 +20,12 @@ export default function BidPage() {
   const totalAmount = ticketCount * pricePerTicket;
 
   useEffect(() => {
+    // Inject Paystack script securely on mount
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    document.body.appendChild(script);
+
     fetchActiveBid();
   }, []);
 
@@ -64,16 +67,6 @@ export default function BidPage() {
     return () => clearInterval(timer);
   }, [activeBid]);
 
-  const config = {
-    reference: (new Date()).getTime().toString(),
-    email: formData.email || 'pending@customer.com', 
-    amount: totalAmount * 100, 
-    currency: 'GHS',
-    publicKey: process.env.REACT_APP_PAYSTACK_PUBLIC_KEY || '', 
-  };
-
-  const initializePayment = usePaystackPayment(config);
-
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -103,16 +96,15 @@ export default function BidPage() {
 
       console.log("3. Vercel Response Status:", response.status);
       
-      // We grab raw text first to prevent JSON crashes!
       const textResult = await response.text(); 
       console.log("4. Raw Vercel Response:", textResult);
 
       if (!response.ok) {
         alert(`Vercel Backend Failed (Status ${response.status}). Check console for details.`);
+        setIsVerifying(false);
         return;
       }
 
-      // Now we safely parse it
       const result = JSON.parse(textResult);
 
       if (result.success) {
@@ -129,17 +121,29 @@ export default function BidPage() {
     }
   };
 
-  const onClose = () => {
-    console.log('Payment window closed.');
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (timeLeft === null) return alert('This bid has ended!');
     if (!process.env.REACT_APP_PAYSTACK_PUBLIC_KEY) return alert('Paystack Public Key is missing!');
     if (!formData.email) return alert('Please enter a valid email address.');
     
-    initializePayment(onSuccess, onClose);
+    // --- NATIVE PAYSTACK TRIGGER (BULLETPROOF) ---
+    const handler = window.PaystackPop.setup({
+      key: process.env.REACT_APP_PAYSTACK_PUBLIC_KEY,
+      email: formData.email,
+      amount: totalAmount * 100, 
+      currency: 'GHS',
+      reference: (new Date()).getTime().toString(),
+      callback: function(response) {
+        // This fires immediately when Paystack successfully charges the card
+        onSuccess(response);
+      },
+      onClose: function() {
+        console.log('Payment window closed by user.');
+      }
+    });
+
+    handler.openIframe();
   };
 
   if (loading) return <div className="container py-section" style={{ textAlign: 'center' }}>Loading live bids...</div>;
@@ -249,7 +253,6 @@ export default function BidPage() {
             </>
           )}
         </div>
-
       </div>
     </div>
   );
