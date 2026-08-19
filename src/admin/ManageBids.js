@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function ManageBids() {
@@ -7,20 +7,22 @@ export default function ManageBids() {
   const [loading, setLoading] = useState(true);
   
   // Form State
-  const [entryMode, setEntryMode] = useState('inventory'); // 'inventory' or 'manual'
+  const [entryMode, setEntryMode] = useState('inventory'); 
   const [selectedProduct, setSelectedProduct] = useState('');
   const [manualName, setManualName] = useState('');
   const [manualImage, setManualImage] = useState('');
   const [endTime, setEndTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Winner Selection State
+  // Winner Selection & UI State
   const [viewingBid, setViewingBid] = useState(null);
   const [entries, setEntries] = useState([]);
   const [winner, setWinner] = useState(null);
+  
+  // Ref for auto-scrolling
+  const entriesPanelRef = useRef(null);
 
   useEffect(() => {
-    // 1. Inject Cloudinary Upload Widget Script securely on mount
     const script = document.createElement('script');
     script.src = 'https://upload-widget.cloudinary.com/global/all.js';
     script.async = true;
@@ -59,15 +61,15 @@ export default function ManageBids() {
 
     const widget = window.cloudinary.createUploadWidget(
       {
-        cloudName: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME, // Make sure this is in your .env.local
-        uploadPreset: process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET, // Make sure this is in your .env.local
+        cloudName: process.env.REACT_APP_CLOUDINARY_CLOUD_NAME, 
+        uploadPreset: process.env.REACT_APP_CLOUDINARY_PRODUCT_PRESET, 
         multiple: false,
         clientAllowedFormats: ['image'],
         maxImageFileSize: 5000000, // 5MB limit
       },
       (error, result) => {
         if (!error && result && result.event === "success") {
-          setManualImage(result.info.secure_url); // Save the uploaded URL to state
+          setManualImage(result.info.secure_url); 
         }
       }
     );
@@ -128,21 +130,34 @@ export default function ManageBids() {
 
   const handleViewEntries = async (bidId) => {
     setViewingBid(bidId);
-    setWinner(null);
+    
+    // Load the permanently saved winner if one exists
+    const currentBidData = activeBids.find(b => b.id === bidId);
+    setWinner(currentBidData?.winner_data || null);
+
     try {
       const { data } = await supabase
         .from('bid_entries')
         .select('*')
         .eq('active_bid_id', bidId);
       setEntries(data || []);
+
+      // Smooth auto-scroll down to the panel
+      setTimeout(() => {
+        if (entriesPanelRef.current) {
+            entriesPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 150);
+
     } catch (error) {
       console.error('Error fetching entries:', error);
     }
   };
 
-  const pickWinner = () => {
+  const pickWinner = async () => {
     if (entries.length === 0) return alert('No entries yet!');
 
+    // The Weighted Raffle Logic (1 ticket = 1 chance)
     let pool = [];
     entries.forEach(entry => {
       for (let i = 0; i < entry.quantity; i++) {
@@ -152,15 +167,54 @@ export default function ManageBids() {
 
     const randomIndex = Math.floor(Math.random() * pool.length);
     const selectedWinner = pool[randomIndex];
+    
     setWinner(selectedWinner);
+
+    // Save the winner to the database permanently and end the bid
+    try {
+      await supabase
+        .from('active_bids')
+        .update({ winner_data: selectedWinner, status: 'completed' })
+        .eq('id', viewingBid);
+      
+      fetchInitialData(); 
+    } catch (error) {
+      console.error("Error saving winner to database:", error);
+    }
   };
 
   const updateBidStatus = async (bidId, newStatus) => {
-    try {
-      await supabase.from('active_bids').update({ status: newStatus }).eq('id', bidId);
-      fetchInitialData();
-    } catch (error) {
-      console.error('Error updating status:', error);
+    if (window.confirm("Are you sure you want to manually end this bid?")) {
+        try {
+        await supabase.from('active_bids').update({ status: newStatus }).eq('id', bidId);
+        fetchInitialData();
+        } catch (error) {
+        console.error('Error updating status:', error);
+        }
+    }
+  };
+
+  // --- NEW DELETE FUNCTION ---
+  const handleDeleteBid = async (bidId) => {
+    if (window.confirm("Are you sure you want to permanently delete this bid campaign? All ticket entries for this campaign will also be lost.")) {
+        try {
+            // 1. Delete all entries tied to this bid first (prevents foreign key constraint errors)
+            await supabase.from('bid_entries').delete().eq('active_bid_id', bidId);
+            
+            // 2. Delete the actual bid campaign
+            const { error } = await supabase.from('active_bids').delete().eq('id', bidId);
+            
+            if (error) throw error;
+            
+            // If the admin was viewing this bid's entries, close the panel
+            if (viewingBid === bidId) setViewingBid(null);
+            
+            alert('Bid campaign deleted successfully.');
+            fetchInitialData();
+        } catch (error) {
+            console.error('Error deleting bid:', error);
+            alert('Error deleting bid: ' + error.message);
+        }
     }
   };
 
@@ -173,18 +227,18 @@ export default function ManageBids() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h3 style={{ margin: 0 }}>Create New Bid Campaign</h3>
           
-          <div style={{ display: 'flex', gap: '0.5rem', background: '#f3f4f6', padding: '4px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', background: '#f3f4f6', padding: '6px', borderRadius: '8px' }}>
             <button 
               type="button"
               onClick={() => setEntryMode('inventory')}
-              style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', background: entryMode === 'inventory' ? 'white' : 'transparent', boxShadow: entryMode === 'inventory' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+              style={{ padding: '0.6rem 1.2rem', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', background: entryMode === 'inventory' ? '#111' : 'transparent', color: entryMode === 'inventory' ? '#fff' : '#4b5563', boxShadow: entryMode === 'inventory' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.2s' }}
             >
               From Inventory
             </button>
             <button 
               type="button"
               onClick={() => setEntryMode('manual')}
-              style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', background: entryMode === 'manual' ? 'white' : 'transparent', boxShadow: entryMode === 'manual' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}
+              style={{ padding: '0.6rem 1.2rem', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', background: entryMode === 'manual' ? '#111' : 'transparent', color: entryMode === 'manual' ? '#fff' : '#4b5563', boxShadow: entryMode === 'manual' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.2s' }}
             >
               Custom Item
             </button>
@@ -273,7 +327,10 @@ export default function ManageBids() {
               <tr key={bid.id} style={{ borderBottom: '1px solid #eee' }}>
                 <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <img src={bid.image_url} alt={bid.product_name} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-                  {bid.product_name}
+                  <div>
+                    <div style={{ fontWeight: 'bold' }}>{bid.product_name}</div>
+                    {bid.winner_data && <div style={{ fontSize: '0.75rem', color: '#059669', marginTop: '4px' }}>🏆 Winner Selected</div>}
+                  </div>
                 </td>
                 <td style={{ padding: '1rem' }}>{new Date(bid.end_time).toLocaleString()}</td>
                 <td style={{ padding: '1rem' }}>
@@ -285,11 +342,50 @@ export default function ManageBids() {
                     {bid.status.toUpperCase()}
                   </span>
                 </td>
-                <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleViewEntries(bid.id)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', cursor: 'pointer' }}>View Entries</button>
+                <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  
+                  <button 
+                    onClick={() => handleViewEntries(bid.id)} 
+                    style={{ 
+                      padding: '0.5rem 1rem', 
+                      fontSize: '0.85rem', 
+                      cursor: 'pointer', 
+                      background: '#f9fafb', 
+                      color: '#111', 
+                      border: '1px solid #d1d5db', 
+                      borderRadius: '6px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    View Entries
+                  </button>
+                  
                   {bid.status === 'active' && (
-                    <button onClick={() => updateBidStatus(bid.id, 'completed')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>End Now</button>
+                    <button 
+                      onClick={() => updateBidStatus(bid.id, 'completed')} 
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      End Now
+                    </button>
                   )}
+
+                  {/* --- NEW DELETE BUTTON --- */}
+                  <button 
+                    onClick={() => handleDeleteBid(bid.id)} 
+                    style={{ 
+                      padding: '0.5rem 1rem', 
+                      fontSize: '0.85rem', 
+                      cursor: 'pointer', 
+                      background: 'transparent', 
+                      color: '#dc2626', 
+                      border: '1px solid #fca5a5', 
+                      borderRadius: '6px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    Delete
+                  </button>
+
                 </td>
               </tr>
             ))}
@@ -298,54 +394,53 @@ export default function ManageBids() {
       </div>
 
       {viewingBid && (
-        <div style={{ marginTop: '2rem', background: '#f9fafb', padding: '2rem', borderRadius: '12px', border: '1px solid #eaecf0' }}>
+        <div ref={entriesPanelRef} style={{ marginTop: '2rem', background: '#f9fafb', padding: '2rem', borderRadius: '12px', border: '1px solid #eaecf0', scrollMarginTop: '100px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3>Bid Entries ({entries.reduce((sum, e) => sum + e.quantity, 0)} Total Tickets)</h3>
             <button onClick={() => setViewingBid(null)} style={{ background: 'transparent', color: 'black', border: '1px solid black', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Close Window</button>
           </div>
 
           {winner ? (
-            <div style={{ background: '#ecfdf5', padding: '2rem', borderRadius: '12px', textAlign: 'center', border: '2px solid #10b981' }}>
+            <div style={{ background: '#ecfdf5', padding: '2rem', borderRadius: '12px', textAlign: 'center', border: '2px solid #10b981', marginBottom: '2rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
               <h2 style={{ color: '#065f46', margin: 0 }}>Winner Selected!</h2>
-              <h1 style={{ fontSize: '2.5rem', margin: '1rem 0' }}>{winner.customer_name}</h1>
-              <p style={{ margin: '0.5rem 0' }}><strong>Phone:</strong> {winner.customer_phone}</p>
+              <h1 style={{ fontSize: '2.5rem', margin: '1rem 0', color: '#064e3b' }}>{winner.customer_name}</h1>
+              <p style={{ margin: '0.5rem 0' }}><strong>WhatsApp:</strong> {winner.customer_phone}</p>
               <p style={{ margin: '0.5rem 0' }}><strong>Email:</strong> {winner.customer_email}</p>
               <p style={{ margin: '0.5rem 0' }}><strong>Tickets Held:</strong> {winner.quantity}</p>
+              <p style={{ margin: '0.5rem 0', color: '#6b7280', fontSize: '0.9rem' }}>Ref: {winner.paystack_reference}</p>
             </div>
           ) : (
-            <>
-              <button onClick={pickWinner} style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', marginBottom: '1.5rem', background: 'var(--brand-yellow)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-                🎲 Pick Random Winner
-              </button>
-              
-              <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
-                {entries.length === 0 ? (
-                  <p style={{ textAlign: 'center', color: '#666' }}>No bids placed for this item yet.</p>
-                ) : (
-                  entries.map(entry => (
-                    <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'white', marginBottom: '0.75rem', borderRadius: '8px', border: '1px solid #eaecf0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                      <div>
-                        <strong style={{ fontSize: '1.1rem', color: '#111' }}>{entry.customer_name}</strong>
-                        <div style={{ fontSize: '0.9rem', color: '#4b5563', marginTop: '0.4rem', display: 'flex', gap: '1rem' }}>
-                          <span>📞 {entry.customer_phone}</span>
-                          <span>✉️ {entry.customer_email}</span>
-                        </div>
-                        <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '0.4rem' }}>
-                          Ref: {entry.paystack_reference} | Paid: GH₵{entry.total_paid}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: '900', color: '#d97706', fontSize: '1.2rem', background: '#fef3c7', padding: '0.4rem 0.8rem', borderRadius: '6px' }}>
-                          {entry.quantity} Ticket(s)
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </>
+            <button onClick={pickWinner} style={{ width: '100%', padding: '1rem', fontSize: '1.2rem', marginBottom: '2rem', background: 'var(--brand-yellow)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+              🎲 Pick Random Winner Now
+            </button>
           )}
+          
+          <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
+            {entries.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#666' }}>No bids placed for this item yet.</p>
+            ) : (
+              entries.map(entry => (
+                <div key={entry.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'white', marginBottom: '0.75rem', borderRadius: '8px', border: '1px solid #eaecf0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                  <div>
+                    <strong style={{ fontSize: '1.1rem', color: '#111' }}>{entry.customer_name}</strong>
+                    <div style={{ fontSize: '0.9rem', color: '#4b5563', marginTop: '0.4rem', display: 'flex', gap: '1rem' }}>
+                      <span>📞 {entry.customer_phone}</span>
+                      <span>✉️ {entry.customer_email}</span>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '0.4rem' }}>
+                      Ref: {entry.paystack_reference} | Paid: GH₵{entry.total_paid}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: '900', color: '#d97706', fontSize: '1.2rem', background: '#fef3c7', padding: '0.4rem 0.8rem', borderRadius: '6px' }}>
+                      {entry.quantity} Ticket(s)
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
