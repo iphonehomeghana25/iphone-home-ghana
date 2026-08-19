@@ -8,13 +8,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 2. Safely check for keys INSIDE the function using your exact variable names
+    // 2. Safely check for keys using your EXACT 'REACT_APP_' variable names
     if (!process.env.REACT_APP_SUPABASE_URL || !process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY) {
       console.error("Vercel is missing Supabase Keys!");
       return res.status(500).json({ error: 'Server config error: Missing Supabase Keys' });
     }
 
-    if (!process.env.PAYSTACK_SECRET_KEY) {
+    if (!process.env.REACT_APP_PAYSTACK_SECRET_KEY) {
       console.error("Vercel is missing Paystack Secret Key!");
       return res.status(500).json({ error: 'Server config error: Missing Paystack Key' });
     }
@@ -25,7 +25,8 @@ export default async function handler(req, res) {
       process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY 
     );
     
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    // Using the prefixed Resend key as well
+    const resend = new Resend(process.env.REACT_APP_RESEND_API_KEY);
 
     const { 
       reference, customer_name, customer_phone, customer_email, 
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
 
     // --- STEP 4: VERIFY PAYMENT WITH PAYSTACK ---
     const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
+      headers: { Authorization: `Bearer ${process.env.REACT_APP_PAYSTACK_SECRET_KEY}` }
     });
     
     const paystackData = await paystackRes.json();
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
 
     // --- STEP 6: ISOLATED EMAIL DISPATCH ---
     try {
-      if (process.env.RESEND_API_KEY) {
+      if (process.env.REACT_APP_RESEND_API_KEY) {
         const emailHtml = `
           <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eaecf0; padding: 20px; border-radius: 8px;">
             <h1 style="color: #000; text-align: center;">Bid Confirmed! 🎉</h1>
