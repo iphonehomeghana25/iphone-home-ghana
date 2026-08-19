@@ -78,11 +78,14 @@ export default function BidPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // --- 4. SECURE VERIFICATION AFTER PAYMENT (UPGRADED) ---
+  // --- 4. SECURE VERIFICATION (DEBUGGING MODE) ---
   const onSuccess = async (reference) => {
+    console.log("1. PAYSTACK SUCCESS TRIGGERED! Reference:", reference);
     setIsVerifying(true);
     
     try {
+      console.log("2. Sending data to Vercel Backend...");
+      
       const response = await fetch('/api/buy-bid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,21 +101,29 @@ export default function BidPage() {
         })
       });
 
-      // Catch local dev server errors where /api doesn't exist
+      console.log("3. Vercel Response Status:", response.status);
+      
+      // We grab raw text first to prevent JSON crashes!
+      const textResult = await response.text(); 
+      console.log("4. Raw Vercel Response:", textResult);
+
       if (!response.ok) {
-          throw new Error('API route not found. Are you running vercel dev or testing on the live site?');
+        alert(`Vercel Backend Failed (Status ${response.status}). Check console for details.`);
+        return;
       }
 
-      const result = await response.json();
+      // Now we safely parse it
+      const result = JSON.parse(textResult);
 
       if (result.success) {
-        setIsSuccess(true); // <--- Triggers the Thank You screen
+        console.log("5. Database save successful! Showing UI.");
+        setIsSuccess(true);
       } else {
-        alert('Backend Error: ' + result.error);
+        alert('Database Error: ' + result.error);
       }
     } catch (error) {
-      console.error(error);
-      alert(`Connection Error: ${error.message}`);
+      console.error("FATAL TRY/CATCH ERROR:", error);
+      alert(`Frontend Caught Error: ${error.message}`);
     } finally {
       setIsVerifying(false);
     }
