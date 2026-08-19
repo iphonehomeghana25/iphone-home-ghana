@@ -36,8 +36,15 @@ export default function Footer() {
               <li><Link to="/shop" className="footer-link">UK Used iPhones</Link></li>
               <li><Link to="/bnpl" className="footer-link">Buy Now Pay Later</Link></li>
               
-              {/* --- NEW RAFFLE LINKS --- */}
-              <li style={{ marginTop: '0.5rem' }}>
+              {/* --- NEW LIVE BID LINK --- */}
+              <li style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                <Link to="/bid" style={{ color: '#ef4444', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'bold' }}>
+                  Live Bid Campaign 🔥
+                </Link>
+              </li>
+
+              {/* --- EXISTING RAFFLE LINKS --- */}
+              <li>
                  <Link to="/raffle/haatso" className="footer-link" style={{ color: '#fbbf24' }}>🎄 Raffle Promo (Haatso)</Link>
               </li>
               <li>

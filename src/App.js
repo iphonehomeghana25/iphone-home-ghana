@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Link } from 'react-router-dom';
 import './App.css';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -28,6 +28,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import BlogPage from './pages/BlogPage';         // <--- NEW: Blog List Page
 import BlogPostPage from './pages/BlogPostPage'; // <--- NEW: Single Blog Post Page
 import RafflePage from './pages/RafflePage';     // <--- NEW: Raffle Page Added
+import BidPage from './pages/BidPage';           // <--- NEW: Bid Page Added
 
 // Admin Components
 import AdminLayout from './admin/AdminLayout';
@@ -39,6 +40,7 @@ import ManageSales from './admin/ManageSales';
 import ManageBlog from './admin/ManageBlog';     // <--- NEW: Admin Blog Manager
 import ManageReviews from './admin/ManageReviews'; // <--- NEW: Admin Reviews Manager
 import ManageRaffle from './admin/ManageRaffle'; // <--- NEW: Admin Raffle Manager (Adding this early for next step)
+import ManageBids from './admin/ManageBids';     // <--- NEW: Admin Bids Manager
 
 // --- WhatsApp Floating Button Component ---
 const WhatsAppButton = () => (
@@ -75,6 +77,15 @@ const WhatsAppButton = () => (
 const PublicLayout = () => (
   <>
     <ScrollToTop />
+    
+    {/* --- NEW GLOBAL ANNOUNCEMENT BAR --- */}
+    <div style={{ background: '#ef4444', color: 'white', textAlign: 'center', padding: '0.5rem 1rem', fontSize: '0.9rem', fontWeight: 'bold' }}>
+        Win a Brand New iPhone for just GH₵10! 
+        <Link to="/bid" style={{ color: '#FFD700', textDecoration: 'underline', marginLeft: '10px' }}>
+            Enter Now &rarr;
+        </Link>
+    </div>
+
     <Header />
     <Outlet />
     <Footer />
@@ -124,6 +135,9 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             
+            {/* --- NEW LIVE BID PUBLIC ROUTE --- */}
+            <Route path="/bid" element={<BidPage />} /> 
+
             <Route path="/blog" element={<BlogPage />} /> 
             <Route path="/blog/:slug" element={<BlogPostPage />} /> 
 
@@ -146,6 +160,7 @@ function App() {
             <Route path="reviews" element={<ManageReviews />} />
             <Route path="bnpl" element={<ManageBNPL />} />
             <Route path="raffle" element={<ManageRaffle />} /> 
+            <Route path="bids" element={<ManageBids />} />
         </Route>
 
       </Routes>

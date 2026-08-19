@@ -113,6 +113,7 @@ export default function AdminLayout() {
             <AdminLink to="/admin/reviews" active={location.pathname === '/admin/reviews'} label="Reviews" icon="⭐" collapsed={collapsed} />
             <AdminLink to="/admin/bnpl" active={location.pathname === '/admin/bnpl'} label="BNPL Debtors" icon="📒" collapsed={collapsed} />
             <AdminLink to="/admin/raffle" active={location.pathname === '/admin/raffle'} label="Raffle Wins" icon="🎁" collapsed={collapsed} /> {/* <--- NEW LINK ADDED */}
+            <AdminLink to="/admin/bids" active={location.pathname === '/admin/bids'} label="Live Bids" icon="🔥" collapsed={collapsed} />
         </nav>
 
         <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid #eaecf0' }}>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext'; 
-import logo from '../assets/logo1.png'; // <--- IMPORTED LOGO HERE
+import logo from '../assets/logo1.png'; 
 import '../App.css'; 
 
 export default function Header() {
@@ -18,7 +18,6 @@ export default function Header() {
         
         {/* Logo */}
         <Link to="/" className="logo-link" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            {/* Updated to use the imported logo variable */}
             <img src={logo} alt="iPhone Home Ghana Logo" style={{ height: '40px', width: 'auto' }} />
             <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'black' }}>iPhone Home Ghana</span>
         </Link>
@@ -27,7 +26,13 @@ export default function Header() {
         <nav className="desktop-nav" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/shop" className="nav-link">Shop</Link>
-          <Link to="/blog" className="nav-link">Blog</Link> {/* <--- NEW: Blog Link */}
+          
+          {/* --- NEW: LIVE BID DESKTOP LINK --- */}
+          <Link to="/bid" className="nav-link" style={{ color: '#ef4444', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            Live Bid <span style={{ fontSize: '1.2rem' }}>🔥</span>
+          </Link>
+
+          <Link to="/blog" className="nav-link">Blog</Link>
           <Link to="/bnpl" className="nav-link" style={{ color: '#d97706', fontWeight: 'bold' }}>Pay Later</Link>
           <Link to="/track" className="nav-link">Track Order</Link>
         </nav>
@@ -72,7 +77,11 @@ export default function Header() {
             <div className="mobile-menu-dropdown">
                 <Link to="/" onClick={closeMenu} className="mobile-menu-link">Home</Link>
                 <Link to="/shop" onClick={closeMenu} className="mobile-menu-link">Shop iPhones</Link>
-                <Link to="/blog" onClick={closeMenu} className="mobile-menu-link">Blog & News</Link> {/* <--- NEW: Blog Link */}
+                
+                {/* --- NEW: LIVE BID MOBILE LINK --- */}
+                <Link to="/bid" onClick={closeMenu} className="mobile-menu-link" style={{ color: '#ef4444', fontWeight: 'bold' }}>Live Bid 🔥</Link>
+
+                <Link to="/blog" onClick={closeMenu} className="mobile-menu-link">Blog & News</Link>
                 <Link to="/bnpl" onClick={closeMenu} className="mobile-menu-link" style={{ color: '#d97706' }}>Buy Now Pay Later</Link>
                 <Link to="/track" onClick={closeMenu} className="mobile-menu-link">Track Order</Link>
                 <div style={{ borderTop: '1px solid #eee', margin: '1rem 1rem 0 1rem' }}></div>
