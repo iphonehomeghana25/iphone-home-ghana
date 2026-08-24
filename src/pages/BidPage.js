@@ -4,6 +4,7 @@ import LiveBidToasts from '../components/LiveBidToasts';
 
 export default function BidPage() {
   const [activeBids, setActiveBids] = useState([]);
+  const [pastWinners, setPastWinners] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,20 +13,33 @@ export default function BidPage() {
     script.async = true;
     document.body.appendChild(script);
 
-    fetchActiveBids();
+    fetchPageData();
   }, []);
 
-  async function fetchActiveBids() {
+  async function fetchPageData() {
     try {
-      const { data, error } = await supabase
+      // 1. Fetch Active Bids
+      const { data: activeData, error: activeError } = await supabase
         .from('active_bids')
         .select('*')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
-      if (data) setActiveBids(data);
+      if (activeData) setActiveBids(activeData);
+
+      // 2. Fetch Past Winners (Completed campaigns with winner data)
+      const { data: winnerData, error: winnerError } = await supabase
+        .from('active_bids')
+        .select('*')
+        .eq('status', 'completed')
+        .not('winner_data', 'is', null)
+        .order('end_time', { ascending: false })
+        .limit(3); // Keep it clean by only showing the 3 most recent
+
+      if (winnerData) setPastWinners(winnerData);
+
     } catch (error) {
-      console.error('Error fetching active bids:', error);
+      console.error('Error fetching bid data:', error);
     } finally {
       setLoading(false);
     }
@@ -33,33 +47,88 @@ export default function BidPage() {
 
   if (loading) return <div className="container py-section" style={{ textAlign: 'center' }}>Loading live bids...</div>;
 
-  if (activeBids.length === 0) {
-    return (
-      <div className="container py-section" style={{ textAlign: 'center' }}>
-        <h2>No Active Bids Right Now</h2>
-        <p>Check back later for your chance to win big!</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="container py-section">
-      <LiveBidToasts />
+    <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh', paddingBottom: '4rem' }}>
+      <div className="container py-section">
+        <LiveBidToasts />
 
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0 }}>Live Bidding Auctions 🔥</h1>
-        <p style={{ color: '#667085', marginTop: '0.5rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
-      </div>
+        {/* --- 1. ACTIVE AUCTIONS SECTION --- */}
+        <div style={{ textAlign: 'center', marginBottom: '3rem', paddingTop: '2rem' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, color: '#111827' }}>Live Bidding Auctions 🔥</h1>
+          <p style={{ color: '#6b7280', marginTop: '0.5rem', fontSize: '1.1rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
+        </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-        {activeBids.map(bid => (
-          <BidCard key={bid.id} activeBid={bid} />
-        ))}
+        {activeBids.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem', background: '#fff', borderRadius: '16px', border: '1px dashed #d1d5db' }}>
+            <h2 style={{ color: '#374151', margin: '0 0 1rem 0' }}>No Active Bids Right Now</h2>
+            <p style={{ color: '#6b7280', margin: 0 }}>We are preparing the next big drop. Check back soon!</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+            {activeBids.map(bid => (
+              <BidCard key={bid.id} activeBid={bid} />
+            ))}
+          </div>
+        )}
+
+        {/* --- 2. TRUST ENGINE: RECENT WINNERS SECTION --- */}
+        {pastWinners.length > 0 && (
+          <div style={{ marginTop: '6rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <span style={{ background: '#fef3c7', color: '#d97706', padding: '6px 16px', borderRadius: '100px', fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Wall of Fame
+              </span>
+              <h2 style={{ fontSize: '2rem', fontWeight: '900', margin: '1rem 0 0.5rem 0', color: '#111827' }}>Recent Winners 🏆</h2>
+              <p style={{ color: '#6b7280' }}>Real people. Real devices. Will you be next?</p>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+              {pastWinners.map(pastBid => (
+                <WinnerCard key={pastBid.id} pastBid={pastBid} />
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
 
+// --- WINNER CARD COMPONENT (TRUST BUILDER) ---
+function WinnerCard({ pastBid }) {
+  const winner = pastBid.winner_data;
+  
+  // Privacy Masking Logic
+  // Name: "Kweku Manu" -> "Kweku M."
+  const nameParts = winner.customer_name.split(' ');
+  const maskedName = nameParts.length > 1 
+    ? `${nameParts[0]} ${nameParts[1][0]}.` 
+    : nameParts[0];
+
+  // Phone: "0243179760" -> "024 **** 760"
+  let maskedPhone = winner.customer_phone;
+  if (maskedPhone.length >= 10) {
+    maskedPhone = `${maskedPhone.substring(0, 3)} **** ${maskedPhone.substring(maskedPhone.length - 3)}`;
+  }
+
+  return (
+    <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #eaecf0', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'transform 0.2s', cursor: 'default' }}>
+      <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
+      <img src={pastBid.image_url} alt={pastBid.product_name} style={{ width: '120px', height: '120px', objectFit: 'contain', margin: '0 auto 1.5rem auto', display: 'block' }} />
+      
+      <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '0 0 0.5rem 0', color: '#111827' }}>Won the {pastBid.product_name}</h3>
+      {pastBid.item_specs && <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: '0 0 1.5rem 0' }}>{pastBid.item_specs}</p>}
+      
+      <div style={{ background: '#ecfdf5', padding: '1rem', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+        <div style={{ fontWeight: '900', color: '#065f46', fontSize: '1.1rem' }}>{maskedName}</div>
+        <div style={{ color: '#047857', fontSize: '0.9rem', marginTop: '0.2rem', fontWeight: '600' }}>{maskedPhone}</div>
+      </div>
+    </div>
+  );
+}
+
+// --- HYBRID LOGIC BID CARD COMPONENT (Same as before) ---
 function BidCard({ activeBid }) {
   const [timeLeft, setTimeLeft] = useState({});
   const [isVerifying, setIsVerifying] = useState(false);
@@ -200,7 +269,6 @@ function BidCard({ activeBid }) {
             Win an {activeBid.product_name}
           </h2>
           
-          {/* NEW: Display Specs & Condition */}
           {activeBid.item_specs && (
              <div style={{ display: 'inline-block', background: '#f3f4f6', color: '#374151', padding: '4px 12px', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
                {activeBid.item_specs}
