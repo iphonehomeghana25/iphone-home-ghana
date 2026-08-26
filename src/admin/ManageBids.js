@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export default function ManageBids() {
+  // NEW: Auth State
+  const [session, setSession] = useState(null);
+  const [authChecking, setAuthChecking] = useState(true);
+
   const [products, setProducts] = useState([]);
   const [activeBids, setActiveBids] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +14,6 @@ export default function ManageBids() {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [manualName, setManualName] = useState('');
   const [manualImage, setManualImage] = useState('');
-  
   const [itemSpecs, setItemSpecs] = useState('');
   const [endTime, setEndTime] = useState('');
   const [targetRevenue, setTargetRevenue] = useState(1000); 
@@ -24,21 +27,42 @@ export default function ManageBids() {
   const entriesPanelRef = useRef(null);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-    script.async = true;
-    document.body.appendChild(script);
+    // --- 1. NEW: CHECK AUTHENTICATION FIRST ---
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      setAuthChecking(false);
 
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = `
-      @keyframes spinAnimation {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(1080deg); }
+      if (session) {
+        // Only load the heavy dashboard scripts if they are logged in!
+        const script = document.createElement('script');
+        script.src = 'https://upload-widget.cloudinary.com/global/all.js';
+        script.async = true;
+        document.body.appendChild(script);
+
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+          @keyframes spinAnimation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(1080deg); }
+          }
+        `;
+        document.head.appendChild(styleSheet);
+
+        fetchInitialData();
       }
-    `;
-    document.head.appendChild(styleSheet);
+    };
 
-    fetchInitialData();
+    checkAuth();
+
+    // Listen for login/logout events (like if they log out from the Staff Portal)
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   async function fetchInitialData() {
@@ -114,8 +138,6 @@ export default function ManageBids() {
 
   const handleViewEntries = async (bidId) => {
     setViewingBid(bidId);
-    
-    // Make sure we load any previously saved winner into state immediately
     const currentBidData = activeBids.find(b => b.id === bidId);
     setWinner(currentBidData?.winner_data || null);
 
@@ -131,7 +153,6 @@ export default function ManageBids() {
     }
   };
 
-  // --- STRICT ERROR CHECKING ADDED HERE ---
   const pickWinner = async () => {
     if (entries.length === 0) return alert('No entries yet!');
     
@@ -143,12 +164,10 @@ export default function ManageBids() {
     const randomIndex = Math.floor(Math.random() * pool.length);
     const selectedWinner = pool[randomIndex];
     
-    // 1. Lock the UI into the spinning state
     setWinner(selectedWinner);
     setIsSpinning(true); 
 
     try {
-      // 2. Alert the database (This triggers the public broadcast!)
       const { error: spinError } = await supabase
         .from('active_bids')
         .update({ winner_data: selectedWinner, status: 'spinning' })
@@ -162,11 +181,9 @@ export default function ManageBids() {
       
       fetchInitialData(); 
 
-      // 3. Wait 14 seconds for the public wheel to finish
       setTimeout(async () => {
         setIsSpinning(false); 
 
-        // 4. Finalize the database to push it to the Wall of Fame
         const { error: completeError } = await supabase
           .from('active_bids')
           .update({ status: 'completed' })
@@ -206,7 +223,19 @@ export default function ManageBids() {
     }
   };
 
-  if (loading) return <div>Loading Bid Management...</div>;
+  // --- 2. NEW: THE UI SECURITY BOUNCER ---
+  if (authChecking) return <div style={{ textAlign: 'center', padding: '4rem' }}>Verifying Admin Credentials...</div>;
+
+  if (!session) {
+    return (
+      <div style={{ textAlign: 'center', padding: '4rem', background: 'white', borderRadius: '12px', border: '1px solid #eaecf0', marginTop: '2rem' }}>
+        <h2 style={{ color: '#dc2626', fontSize: '2rem', marginBottom: '1rem' }}>Access Denied 🛑</h2>
+        <p style={{ color: '#6b7280', fontSize: '1.1rem' }}>You must be logged into the Staff Portal to view this dashboard.</p>
+      </div>
+    );
+  }
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '4rem' }}>Loading Bid Management...</div>;
 
   const totalTicketsSold = entries.reduce((sum, e) => sum + e.quantity, 0);
   const totalRevenueMade = totalTicketsSold * 10;
@@ -335,7 +364,6 @@ export default function ManageBids() {
             <button onClick={() => setViewingBid(null)} style={{ background: 'transparent', color: 'black', border: '1px solid black', padding: '0.4rem 1rem', borderRadius: '4px', cursor: 'pointer' }}>Close Window</button>
           </div>
 
-          {/* FIX: Simplified logic so the button NEVER comes back once a winner is picked */}
           {isSpinning ? (
              <div style={{ background: 'white', padding: '4rem 2rem', borderRadius: '12px', textAlign: 'center', border: '1px solid #eaecf0', marginBottom: '2rem' }}>
                 <div style={{ animation: 'spinAnimation 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite', width: '80px', height: '80px', border: '8px solid #f3f4f6', borderTop: '8px solid var(--brand-yellow)', borderRadius: '50%', margin: '0 auto' }}></div>
