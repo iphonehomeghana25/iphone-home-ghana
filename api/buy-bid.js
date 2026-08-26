@@ -8,25 +8,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 2. Safely check for keys
-    if (!process.env.REACT_APP_SUPABASE_URL || !process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY) {
+    // 2. Safely check for SECRET keys (Notice no REACT_APP_ prefix)
+    if (!process.env.REACT_APP_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.error("Vercel is missing Supabase Keys!");
       return res.status(500).json({ error: 'Server config error: Missing Supabase Keys' });
     }
 
-    if (!process.env.REACT_APP_PAYSTACK_SECRET_KEY) {
+    if (!process.env.PAYSTACK_SECRET_KEY) {
       console.error("Vercel is missing Paystack Secret Key!");
       return res.status(500).json({ error: 'Server config error: Missing Paystack Key' });
     }
 
-    // 3. Initialize secure clients
+    // 3. Initialize secure clients using the MASTER key
     const supabase = createClient(
       process.env.REACT_APP_SUPABASE_URL,
-      process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY 
+      process.env.SUPABASE_SERVICE_ROLE_KEY 
     );
     
-    // Fallback to whichever Resend key format you have in Vercel
-    const resendKey = process.env.RESEND_API_KEY || process.env.REACT_APP_RESEND_API_KEY;
+    // Strict requirement for backend Resend key
+    const resendKey = process.env.RESEND_API_KEY;
     const resend = new Resend(resendKey);
 
     const { 
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     // --- STEP 4: VERIFY PAYMENT WITH PAYSTACK ---
     const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: { Authorization: `Bearer ${process.env.REACT_APP_PAYSTACK_SECRET_KEY}` }
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` }
     });
     
     const paystackData = await paystackRes.json();
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
     if (dbError) {
       console.error("Supabase Database Error:", dbError);
-      throw dbError; // Stop here if DB fails
+      throw dbError; 
     }
 
     // --- STEP 6: ISOLATED EMAIL DISPATCH ---
@@ -85,7 +85,6 @@ export default async function handler(req, res) {
         `;
 
         await resend.emails.send({
-          // ALIGNED WITH YOUR WORKING CODE
           from: 'iPhone Home Ghana <receipts@iphonehomeghana.com>', 
           to: [customer_email], 
           subject: 'Your Bid Confirmation - iPhone Home Ghana',
