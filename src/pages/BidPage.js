@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import LiveBidToasts from '../components/LiveBidToasts';
-import Confetti from 'react-confetti'; // NEW: Confetti Library for the celebration
+import Confetti from 'react-confetti';
 
 export default function BidPage() {
   const [activeBids, setActiveBids] = useState([]);
   const [pastWinners, setPastWinners] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // NEW: Live Spin Overlay State
   const [liveSpin, setLiveSpin] = useState({ show: false, phase: '', product_name: '', winner: null, image: '' });
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    // Set window size for the confetti
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
 
     const script = document.createElement('script');
@@ -21,7 +19,6 @@ export default function BidPage() {
     script.async = true;
     document.body.appendChild(script);
 
-    // NEW: Inject Animations for the Overlay
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes spinAnimation {
@@ -37,13 +34,12 @@ export default function BidPage() {
 
     fetchPageData();
 
-    // --- NEW: THE GLOBAL BROADCAST LISTENER ---
+    // --- HARDENED GLOBAL BROADCAST LISTENER ---
     const channel = supabase
-      .channel('public:active_bids')
+      .channel('live-spin-broadcast')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'active_bids' }, (payload) => {
         const updatedBid = payload.new;
         
-        // 1. If admin triggers the spin, lock the screen and show the wheel
         if (updatedBid.status === 'spinning') {
           setLiveSpin({
             show: true,
@@ -53,7 +49,6 @@ export default function BidPage() {
             image: updatedBid.image_url
           });
         } 
-        // 2. If admin 14-second timer finishes, reveal the winner!
         else if (updatedBid.status === 'completed' && updatedBid.winner_data) {
           setLiveSpin(prev => ({
             show: true,
@@ -63,7 +58,6 @@ export default function BidPage() {
             image: updatedBid.image_url
           }));
           
-          // Let them celebrate for 10 seconds, then close overlay and refresh page to show Wall of Fame
           setTimeout(() => {
             setLiveSpin({ show: false, phase: '', product_name: '', winner: null, image: '' });
             fetchPageData(); 
@@ -77,8 +71,7 @@ export default function BidPage() {
 
   async function fetchPageData() {
     try {
-      // 1. Fetch Active Bids
-      const { data: activeData, error: activeError } = await supabase
+      const { data: activeData } = await supabase
         .from('active_bids')
         .select('*')
         .eq('status', 'active')
@@ -86,8 +79,7 @@ export default function BidPage() {
 
       if (activeData) setActiveBids(activeData);
 
-      // 2. Fetch Past Winners (Completed campaigns with winner data)
-      const { data: winnerData, error: winnerError } = await supabase
+      const { data: winnerData } = await supabase
         .from('active_bids')
         .select('*')
         .eq('status', 'completed')
@@ -109,7 +101,6 @@ export default function BidPage() {
   return (
     <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh', paddingBottom: '4rem' }}>
       
-      {/* --- NEW: THE CINEMATIC LIVE SPIN OVERLAY --- */}
       {liveSpin.show && (
         <div style={{ 
           position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
@@ -144,7 +135,6 @@ export default function BidPage() {
       <div className="container py-section">
         <LiveBidToasts />
 
-        {/* --- 1. ACTIVE AUCTIONS SECTION --- */}
         <div style={{ textAlign: 'center', marginBottom: '3rem', paddingTop: '2rem' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, color: '#111827' }}>Live Bidding Auctions 🔥</h1>
           <p style={{ color: '#6b7280', marginTop: '0.5rem', fontSize: '1.1rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
@@ -163,7 +153,6 @@ export default function BidPage() {
           </div>
         )}
 
-        {/* --- 2. TRUST ENGINE: RECENT WINNERS SECTION --- */}
         {pastWinners.length > 0 && (
           <div style={{ marginTop: '6rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -187,11 +176,9 @@ export default function BidPage() {
   );
 }
 
-// --- WINNER CARD COMPONENT (TRUST BUILDER) ---
 function WinnerCard({ pastBid }) {
   const winner = pastBid.winner_data;
   
-  // Privacy Masking Logic
   const nameParts = winner.customer_name.split(' ');
   const maskedName = nameParts.length > 1 
     ? `${nameParts[0]} ${nameParts[1][0]}.` 
@@ -218,7 +205,6 @@ function WinnerCard({ pastBid }) {
   );
 }
 
-// --- HYBRID LOGIC BID CARD COMPONENT ---
 function BidCard({ activeBid }) {
   const [timeLeft, setTimeLeft] = useState({});
   const [isVerifying, setIsVerifying] = useState(false);
