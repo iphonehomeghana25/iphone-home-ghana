@@ -10,10 +10,7 @@ export default function ManageBids() {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [manualName, setManualName] = useState('');
   const [manualImage, setManualImage] = useState('');
-  
-  // NEW: Specs & Condition State
   const [itemSpecs, setItemSpecs] = useState('');
-  
   const [endTime, setEndTime] = useState('');
   const [targetRevenue, setTargetRevenue] = useState(1000); 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,7 +93,7 @@ export default function ManageBids() {
         .insert([{
           product_name: finalName,
           image_url: finalImage,
-          item_specs: itemSpecs, // Save the new specs
+          item_specs: itemSpecs, 
           end_time: new Date(endTime).toISOString(),
           target_tickets: calculatedTickets,
           status: 'active'
@@ -131,29 +128,47 @@ export default function ManageBids() {
     }
   };
 
+  // --- PHASE 2: GLOBAL TRIGGER SPINNER LOGIC ---
   const pickWinner = async () => {
     if (entries.length === 0) return alert('No entries yet!');
+    
+    // 1. Instantly calculate the winner locally
+    let pool = [];
+    entries.forEach(entry => {
+      for (let i = 0; i < entry.quantity; i++) pool.push(entry);
+    });
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    const selectedWinner = pool[randomIndex];
+    
+    setWinner(selectedWinner);
     setIsSpinning(true); 
 
-    setTimeout(async () => {
-      let pool = [];
-      entries.forEach(entry => {
-        for (let i = 0; i < entry.quantity; i++) pool.push(entry);
-      });
-
-      const randomIndex = Math.floor(Math.random() * pool.length);
-      const selectedWinner = pool[randomIndex];
+    try {
+      // 2. Instantly update DB to trigger the public broadcast overlay!
+      await supabase
+        .from('active_bids')
+        .update({ winner_data: selectedWinner, status: 'spinning' })
+        .eq('id', viewingBid);
       
-      setWinner(selectedWinner);
-      setIsSpinning(false); 
+      fetchInitialData(); // Refresh table to show blue "SPINNING" status
 
-      try {
-        await supabase.from('active_bids').update({ winner_data: selectedWinner, status: 'completed' }).eq('id', viewingBid);
+      // 3. Wait exactly 14 seconds for the public animation to finish
+      setTimeout(async () => {
+        setIsSpinning(false); 
+        
+        // 4. Set to completed so it drops onto the public Wall of Fame
+        await supabase
+            .from('active_bids')
+            .update({ status: 'completed' })
+            .eq('id', viewingBid);
+            
         fetchInitialData(); 
-      } catch (error) {
-        console.error("Database save error:", error);
-      }
-    }, 14000); 
+      }, 14000); 
+
+    } catch (error) {
+      console.error("Database save error:", error);
+      setIsSpinning(false);
+    }
   };
 
   const updateBidStatus = async (bidId, newStatus) => {
@@ -220,7 +235,6 @@ export default function ManageBids() {
             </>
           )}
 
-          {/* NEW: Specs Input */}
           <div style={{ flex: '1', minWidth: '200px' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Specs & Condition</label>
             <input 
@@ -272,7 +286,12 @@ export default function ManageBids() {
                 </td>
                 <td style={{ padding: '1rem' }}>{new Date(bid.end_time).toLocaleString()}</td>
                 <td style={{ padding: '1rem' }}>
-                  <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', background: bid.status === 'active' ? '#ecfdf5' : '#f3f4f6', color: bid.status === 'active' ? '#065f46' : '#374151' }}>
+                  <span style={{ 
+                    padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', 
+                    // Dynamic coloring for 'spinning'
+                    background: bid.status === 'active' ? '#ecfdf5' : bid.status === 'spinning' ? '#eff6ff' : '#f3f4f6', 
+                    color: bid.status === 'active' ? '#065f46' : bid.status === 'spinning' ? '#1d4ed8' : '#374151' 
+                  }}>
                     {bid.status.toUpperCase()}
                   </span>
                 </td>
@@ -311,9 +330,9 @@ export default function ManageBids() {
              <div style={{ background: 'white', padding: '4rem 2rem', borderRadius: '12px', textAlign: 'center', border: '1px solid #eaecf0', marginBottom: '2rem' }}>
                 <div style={{ animation: 'spinAnimation 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite', width: '80px', height: '80px', border: '8px solid #f3f4f6', borderTop: '8px solid var(--brand-yellow)', borderRadius: '50%', margin: '0 auto' }}></div>
                 <h2 style={{ marginTop: '2rem', color: '#111' }}>Spinning the Wheel...</h2>
-                <p style={{ color: '#6b7280' }}>Selecting a lucky winner from {totalTicketsSold} tickets!</p>
+                <p style={{ color: '#6b7280' }}>Broadcasting live to the public page right now!</p>
              </div>
-          ) : winner ? (
+          ) : currentViewingBidData?.status === 'completed' && winner ? (
             <div style={{ background: '#ecfdf5', padding: '2rem', borderRadius: '12px', textAlign: 'center', border: '2px solid #10b981', marginBottom: '2rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
               <h2 style={{ color: '#065f46', margin: 0 }}>Winner Selected!</h2>
