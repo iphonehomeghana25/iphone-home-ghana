@@ -10,7 +10,10 @@ export default function ManageBids() {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [manualName, setManualName] = useState('');
   const [manualImage, setManualImage] = useState('');
+  
+  // Specs & Condition State
   const [itemSpecs, setItemSpecs] = useState('');
+  
   const [endTime, setEndTime] = useState('');
   const [targetRevenue, setTargetRevenue] = useState(1000); 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,7 +96,7 @@ export default function ManageBids() {
         .insert([{
           product_name: finalName,
           image_url: finalImage,
-          item_specs: itemSpecs, 
+          item_specs: itemSpecs,
           end_time: new Date(endTime).toISOString(),
           target_tickets: calculatedTickets,
           status: 'active'
@@ -128,40 +131,34 @@ export default function ManageBids() {
     }
   };
 
-  // --- PHASE 2: GLOBAL TRIGGER SPINNER LOGIC ---
+  // --- THE NEW SYNCHRONIZED SPINNER LOGIC ---
   const pickWinner = async () => {
     if (entries.length === 0) return alert('No entries yet!');
     
-    // 1. Instantly calculate the winner locally
+    // 1. Calculate the winner locally first
     let pool = [];
     entries.forEach(entry => {
       for (let i = 0; i < entry.quantity; i++) pool.push(entry);
     });
+
     const randomIndex = Math.floor(Math.random() * pool.length);
     const selectedWinner = pool[randomIndex];
     
+    // 2. Lock it in React state so the UI doesn't bounce back to the button
     setWinner(selectedWinner);
     setIsSpinning(true); 
 
     try {
-      // 2. Instantly update DB to trigger the public broadcast overlay!
-      await supabase
-        .from('active_bids')
-        .update({ winner_data: selectedWinner, status: 'spinning' })
-        .eq('id', viewingBid);
+      // 3. Update database to 'spinning' WITH the winner data to trigger the public site
+      await supabase.from('active_bids').update({ winner_data: selectedWinner, status: 'spinning' }).eq('id', viewingBid);
+      fetchInitialData(); // Refresh the table list status
       
-      fetchInitialData(); // Refresh table to show blue "SPINNING" status
-
-      // 3. Wait exactly 14 seconds for the public animation to finish
+      // 4. Wait 14 seconds for the public broadcast animation to finish
       setTimeout(async () => {
-        setIsSpinning(false); 
+        setIsSpinning(false); // Stop the local admin spinner
         
-        // 4. Set to completed so it drops onto the public Wall of Fame
-        await supabase
-            .from('active_bids')
-            .update({ status: 'completed' })
-            .eq('id', viewingBid);
-            
+        // 5. Finalize the campaign as completed
+        await supabase.from('active_bids').update({ status: 'completed' }).eq('id', viewingBid);
         fetchInitialData(); 
       }, 14000); 
 
@@ -330,9 +327,9 @@ export default function ManageBids() {
              <div style={{ background: 'white', padding: '4rem 2rem', borderRadius: '12px', textAlign: 'center', border: '1px solid #eaecf0', marginBottom: '2rem' }}>
                 <div style={{ animation: 'spinAnimation 3s cubic-bezier(0.1, 0.7, 0.1, 1) infinite', width: '80px', height: '80px', border: '8px solid #f3f4f6', borderTop: '8px solid var(--brand-yellow)', borderRadius: '50%', margin: '0 auto' }}></div>
                 <h2 style={{ marginTop: '2rem', color: '#111' }}>Spinning the Wheel...</h2>
-                <p style={{ color: '#6b7280' }}>Broadcasting live to the public page right now!</p>
+                <p style={{ color: '#6b7280' }}>Broadcasting live to the public page!</p>
              </div>
-          ) : currentViewingBidData?.status === 'completed' && winner ? (
+          ) : winner ? (
             <div style={{ background: '#ecfdf5', padding: '2rem', borderRadius: '12px', textAlign: 'center', border: '2px solid #10b981', marginBottom: '2rem' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
               <h2 style={{ color: '#065f46', margin: 0 }}>Winner Selected!</h2>

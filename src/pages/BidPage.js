@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import LiveBidToasts from '../components/LiveBidToasts';
-import Confetti from 'react-confetti'; // NEW: Confetti Library
+import Confetti from 'react-confetti'; // NEW: Confetti Library for the celebration
 
 export default function BidPage() {
   const [activeBids, setActiveBids] = useState([]);
@@ -21,7 +21,7 @@ export default function BidPage() {
     script.async = true;
     document.body.appendChild(script);
 
-    // Inject Animations for the Overlay
+    // NEW: Inject Animations for the Overlay
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `
       @keyframes spinAnimation {
@@ -63,7 +63,7 @@ export default function BidPage() {
             image: updatedBid.image_url
           }));
           
-          // Let them celebrate for 10 seconds, then close overlay and refresh page
+          // Let them celebrate for 10 seconds, then close overlay and refresh page to show Wall of Fame
           setTimeout(() => {
             setLiveSpin({ show: false, phase: '', product_name: '', winner: null, image: '' });
             fetchPageData(); 
@@ -77,10 +77,24 @@ export default function BidPage() {
 
   async function fetchPageData() {
     try {
-      const { data: activeData } = await supabase.from('active_bids').select('*').eq('status', 'active').order('created_at', { ascending: false });
+      // 1. Fetch Active Bids
+      const { data: activeData, error: activeError } = await supabase
+        .from('active_bids')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
       if (activeData) setActiveBids(activeData);
 
-      const { data: winnerData } = await supabase.from('active_bids').select('*').eq('status', 'completed').not('winner_data', 'is', null).order('end_time', { ascending: false }).limit(3); 
+      // 2. Fetch Past Winners (Completed campaigns with winner data)
+      const { data: winnerData, error: winnerError } = await supabase
+        .from('active_bids')
+        .select('*')
+        .eq('status', 'completed')
+        .not('winner_data', 'is', null)
+        .order('end_time', { ascending: false })
+        .limit(3); 
+
       if (winnerData) setPastWinners(winnerData);
 
     } catch (error) {
@@ -130,6 +144,7 @@ export default function BidPage() {
       <div className="container py-section">
         <LiveBidToasts />
 
+        {/* --- 1. ACTIVE AUCTIONS SECTION --- */}
         <div style={{ textAlign: 'center', marginBottom: '3rem', paddingTop: '2rem' }}>
           <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, color: '#111827' }}>Live Bidding Auctions 🔥</h1>
           <p style={{ color: '#6b7280', marginTop: '0.5rem', fontSize: '1.1rem' }}>Select an active campaign below, grab your tickets, and good luck!</p>
@@ -148,6 +163,7 @@ export default function BidPage() {
           </div>
         )}
 
+        {/* --- 2. TRUST ENGINE: RECENT WINNERS SECTION --- */}
         {pastWinners.length > 0 && (
           <div style={{ marginTop: '6rem' }}>
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -171,11 +187,15 @@ export default function BidPage() {
   );
 }
 
-// --- WINNER CARD COMPONENT ---
+// --- WINNER CARD COMPONENT (TRUST BUILDER) ---
 function WinnerCard({ pastBid }) {
   const winner = pastBid.winner_data;
+  
+  // Privacy Masking Logic
   const nameParts = winner.customer_name.split(' ');
-  const maskedName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[1][0]}.` : nameParts[0];
+  const maskedName = nameParts.length > 1 
+    ? `${nameParts[0]} ${nameParts[1][0]}.` 
+    : nameParts[0];
 
   let maskedPhone = winner.customer_phone;
   if (maskedPhone.length >= 10) {
@@ -203,7 +223,9 @@ function BidCard({ activeBid }) {
   const [timeLeft, setTimeLeft] = useState({});
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
   const [ticketsSold, setTicketsSold] = useState(0);
+
   const [ticketCount, setTicketCount] = useState(1);
   const [formData, setFormData] = useState({ fullName: '', phone: '', email: '' });
 
@@ -212,27 +234,47 @@ function BidCard({ activeBid }) {
 
   useEffect(() => {
     fetchCurrentTickets();
+
     const channel = supabase
       .channel(`public:bid_entries:${activeBid.id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bid_entries', filter: `active_bid_id=eq.${activeBid.id}` }, 
-        () => { fetchCurrentTickets(); }
+        () => {
+          fetchCurrentTickets(); 
+        }
       ).subscribe();
+
     return () => supabase.removeChannel(channel);
   }, [activeBid.id]);
 
   const fetchCurrentTickets = async () => {
-    const { data } = await supabase.from('bid_entries').select('quantity').eq('active_bid_id', activeBid.id);
-    if (data) setTicketsSold(data.reduce((sum, entry) => sum + entry.quantity, 0));
+    const { data } = await supabase
+      .from('bid_entries')
+      .select('quantity')
+      .eq('active_bid_id', activeBid.id);
+    
+    if (data) {
+      const total = data.reduce((sum, entry) => sum + entry.quantity, 0);
+      setTicketsSold(total);
+    }
   };
 
   useEffect(() => {
     if (!activeBid) return;
+
     const timer = setInterval(() => {
       const difference = +new Date(activeBid.end_time) - +new Date();
       if (difference > 0) {
-        setTimeLeft({ days: Math.floor(difference / (1000 * 60 * 60 * 24)), hours: Math.floor((difference / (1000 * 60 * 60)) % 24), minutes: Math.floor((difference / 1000 / 60) % 60), seconds: Math.floor((difference / 1000) % 60) });
-      } else { setTimeLeft(null); }
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60)
+        });
+      } else {
+        setTimeLeft(null); 
+      }
     }, 1000);
+
     return () => clearInterval(timer);
   }, [activeBid]);
 
@@ -242,16 +284,38 @@ function BidCard({ activeBid }) {
     setIsVerifying(true);
     try {
       const response = await fetch('/api/buy-bid', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference: reference.reference, customer_name: formData.fullName, customer_phone: formData.phone, customer_email: formData.email, quantity: ticketCount, total_paid: totalAmount, active_bid_id: activeBid.id, product_name: activeBid.product_name })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reference: reference.reference,
+          customer_name: formData.fullName,
+          customer_phone: formData.phone,
+          customer_email: formData.email,
+          quantity: ticketCount,
+          total_paid: totalAmount,
+          active_bid_id: activeBid.id,
+          product_name: activeBid.product_name
+        })
       });
+
       const textResult = await response.text(); 
-      if (!response.ok) { alert(`Verification Failed.`); setIsVerifying(false); return; }
+      if (!response.ok) {
+        alert(`Verification Failed (Status ${response.status}).`);
+        setIsVerifying(false); return;
+      }
+
       const result = JSON.parse(textResult);
-      if (result.success) { setIsSuccess(true); fetchCurrentTickets(); } 
-      else { alert('Database Error: ' + result.error); }
-    } catch (error) { alert(`Error: ${error.message}`); } 
-    finally { setIsVerifying(false); }
+      if (result.success) {
+        setIsSuccess(true);
+        fetchCurrentTickets(); 
+      } else {
+        alert('Database Error: ' + result.error);
+      }
+    } catch (error) {
+      alert(`Frontend Error: ${error.message}`);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -262,11 +326,18 @@ function BidCard({ activeBid }) {
     if (!formData.email) return alert('Please enter a valid email address.');
     
     const ticketsRemaining = (activeBid.target_tickets || 100) - ticketsSold;
-    if (ticketCount > ticketsRemaining) return alert(`Only ${ticketsRemaining} tickets left!`);
+    if (ticketCount > ticketsRemaining) {
+        return alert(`Only ${ticketsRemaining} tickets left! Please lower your bid quantity.`);
+    }
 
     const handler = window.PaystackPop.setup({
-      key: process.env.REACT_APP_PAYSTACK_PUBLIC_KEY, email: formData.email, amount: totalAmount * 100, currency: 'GHS', reference: (new Date()).getTime().toString(),
-      callback: function(response) { onSuccess(response); }, onClose: function() { console.log('Closed.'); }
+      key: process.env.REACT_APP_PAYSTACK_PUBLIC_KEY,
+      email: formData.email,
+      amount: totalAmount * 100, 
+      currency: 'GHS',
+      reference: (new Date()).getTime().toString(),
+      callback: function(response) { onSuccess(response); },
+      onClose: function() { console.log('Payment window closed by user.'); }
     });
     handler.openIframe();
   };
@@ -284,19 +355,30 @@ function BidCard({ activeBid }) {
           <span style={{ background: isSoldOut ? '#111' : '#ef4444', color: 'white', padding: '6px 16px', borderRadius: '100px', fontWeight: 'bold', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
             {isSoldOut ? 'Sold Out' : 'Live Auction'}
           </span>
-          <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '1rem 0 0.5rem 0' }}>Win an {activeBid.product_name}</h2>
+          <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '1rem 0 0.5rem 0' }}>
+            Win an {activeBid.product_name}
+          </h2>
           
           {activeBid.item_specs && (
-             <div style={{ display: 'inline-block', background: '#f3f4f6', color: '#374151', padding: '4px 12px', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>{activeBid.item_specs}</div>
+             <div style={{ display: 'inline-block', background: '#f3f4f6', color: '#374151', padding: '4px 12px', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+               {activeBid.item_specs}
+             </div>
           )}
 
           <img src={activeBid.image_url} alt={activeBid.product_name} style={{ width: '100%', maxWidth: '280px', height: 'auto', objectFit: 'contain', margin: '0 auto', display: 'block' }} />
           
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
             {timeLeft && !isSoldOut ? (
-              <><TimeBox label="Days" value={timeLeft.days}/><TimeBox label="Hours" value={timeLeft.hours}/><TimeBox label="Mins" value={timeLeft.minutes}/><TimeBox label="Secs" value={timeLeft.seconds}/></>
+              <>
+                <TimeBox label="Days" value={timeLeft.days}/>
+                <TimeBox label="Hours" value={timeLeft.hours}/>
+                <TimeBox label="Mins" value={timeLeft.minutes}/>
+                <TimeBox label="Secs" value={timeLeft.seconds}/>
+              </>
             ) : (
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc2626' }}>{isSoldOut ? 'TARGET REACHED' : 'BIDDING CLOSED'}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc2626' }}>
+                {isSoldOut ? 'TARGET REACHED' : 'BIDDING CLOSED'}
+              </div>
             )}
           </div>
         </div>
@@ -317,15 +399,19 @@ function BidCard({ activeBid }) {
             <div style={{ textAlign: 'center', padding: '2rem 1rem', background: '#ecfdf5', borderRadius: '12px', border: '2px solid #10b981' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🎉</div>
                 <h2 style={{ color: '#065f46', fontWeight: '800', marginBottom: '1rem', fontSize: '1.5rem' }}>Payment Successful!</h2>
-                <p style={{ color: '#047857', fontSize: '1rem', marginBottom: '1.5rem' }}>Thank you, <strong>{formData.fullName}</strong>. You secured <strong>{ticketCount}</strong> bid(s). Check your email.</p>
+                <p style={{ color: '#047857', fontSize: '1rem', marginBottom: '1.5rem' }}>
+                    Thank you, <strong>{formData.fullName}</strong>. You secured <strong>{ticketCount}</strong> bid(s). Check your email for your digital receipt.
+                </p>
                 {!isSoldOut && (
-                  <button onClick={() => { setIsSuccess(false); setTicketCount(1); setFormData({ fullName: '', phone: '', email: '' }); }} style={{ background: '#059669', color: 'white', border: 'none', padding: '0.8rem 2rem', borderRadius: '100px', fontWeight: 'bold', cursor: 'pointer' }}>Buy More Tickets</button>
+                  <button onClick={() => { setIsSuccess(false); setTicketCount(1); setFormData({ fullName: '', phone: '', email: '' }); }} style={{ background: '#059669', color: 'white', border: 'none', padding: '0.8rem 2rem', borderRadius: '100px', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Buy More Tickets
+                  </button>
                 )}
             </div>
           ) : (
             <div style={{ padding: '0 1rem' }}>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: '700' }}>Secure Your Entry</h3>
-                <p style={{ color: '#667085', marginBottom: '1.5rem', fontSize: '0.95rem' }}>Only GH₵{pricePerTicket} per bid.</p>
+                <p style={{ color: '#667085', marginBottom: '1.5rem', fontSize: '0.95rem' }}>Only GH₵{pricePerTicket} per bid. Buy more to increase your chances!</p>
                 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
@@ -348,7 +434,15 @@ function BidCard({ activeBid }) {
                     <span>GH₵{totalAmount}</span>
                   </div>
 
-                  <button type="submit" disabled={isEnded || isVerifying} style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', fontWeight: 'bold', background: (isEnded || isVerifying) ? '#ccc' : 'black', color: 'white', borderRadius: '8px', marginTop: '0.5rem', border: 'none', cursor: (isEnded || isVerifying) ? 'not-allowed' : 'pointer' }}>
+                  <button 
+                    type="submit" 
+                    disabled={isEnded || isVerifying}
+                    style={{ 
+                      width: '100%', padding: '1.2rem', fontSize: '1.1rem', fontWeight: 'bold', 
+                      background: (isEnded || isVerifying) ? '#ccc' : 'black', 
+                      color: 'white', borderRadius: '8px', marginTop: '0.5rem', border: 'none', cursor: (isEnded || isVerifying) ? 'not-allowed' : 'pointer'
+                    }}
+                  >
                     {isVerifying ? 'Verifying...' : isSoldOut ? 'Sold Out' : !timeLeft ? 'Ended' : `Pay GH₵${totalAmount} Now`}
                   </button>
                 </form>
